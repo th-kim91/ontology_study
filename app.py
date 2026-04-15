@@ -13,114 +13,296 @@ st.set_page_config(
 # ── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  .main { background: #F8FAFC; }
-  .stApp { background: #F8FAFC; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-  /* Progress bar */
-  .stProgress > div > div { background: #028090 !important; }
+  html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+  .stApp { background: #F1F5F9; }
+  .main .block-container { padding-top: 2rem; max-width: 900px; }
 
-  /* Cards */
+  /* ── Progress bar ── */
+  .stProgress > div > div > div > div { background: linear-gradient(90deg, #028090, #0EA5E9) !important; border-radius: 4px; }
+
+  /* ── Sidebar ── */
+  section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0F1E38 0%, #1B2A4A 100%);
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  section[data-testid="stSidebar"] > div { padding-top: 1.5rem; }
+  section[data-testid="stSidebar"] h1,
+  section[data-testid="stSidebar"] h2,
+  section[data-testid="stSidebar"] h3,
+  section[data-testid="stSidebar"] p,
+  section[data-testid="stSidebar"] label,
+  section[data-testid="stSidebar"] span { color: #CBD5E1 !important; }
+  section[data-testid="stSidebar"] .stMarkdown p { color: #94A3B8 !important; }
+  section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.1); }
+  section[data-testid="stSidebar"] .stButton > button {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #CBD5E1 !important;
+    border-radius: 8px;
+    font-size: 0.82em;
+    text-align: left;
+    padding: 6px 10px;
+  }
+  section[data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(2,128,144,0.25);
+    border-color: #028090;
+    color: white !important;
+  }
+  section[data-testid="stSidebar"] .stSelectbox > div > div {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: white;
+  }
+  section[data-testid="stSidebar"] .stTextInput > div > div > input {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: white;
+  }
+
+  /* ── Hero banner ── */
+  .hero {
+    background: linear-gradient(135deg, #0F1E38 0%, #1B2A4A 50%, #023E48 100%);
+    border-radius: 20px;
+    padding: 44px 48px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(2,128,144,0.18) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(2,128,144,0.25);
+    border: 1px solid rgba(2,128,144,0.5);
+    color: #67E8F9;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    color: white !important;
+    font-size: 2.2em;
+    font-weight: 800;
+    margin: 0 0 10px;
+    line-height: 1.2;
+  }
+  .hero p {
+    color: #94A3B8 !important;
+    font-size: 1.05em;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ── Level cards ── */
+  .level-card {
+    background: white;
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+    border: 2px solid #E2E8F0;
+    transition: all 0.2s;
+    cursor: pointer;
+    height: 100%;
+  }
+  .level-card:hover { border-color: #028090; box-shadow: 0 8px 24px rgba(2,128,144,0.12); transform: translateY(-2px); }
+  .level-card .icon { font-size: 2.2em; margin-bottom: 10px; }
+  .level-card h3 { color: #1E293B; font-size: 1.1em; font-weight: 700; margin: 0 0 8px; }
+  .level-card p { color: #64748B; font-size: 0.82em; margin: 0 0 10px; line-height: 1.5; }
+  .level-card .pill { display: inline-block; background: #EEF2FF; color: #4F46E5; font-size: 0.75em; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+
+  /* ── Info box ── */
+  .info-box {
+    background: white;
+    border-radius: 12px;
+    padding: 18px 22px;
+    border: 1px solid #E2E8F0;
+    font-size: 0.87em;
+    color: #475569;
+    line-height: 1.7;
+    margin-top: 4px;
+  }
+  .info-box strong { color: #1E293B; }
+
+  /* ── Question card ── */
   .q-card {
     background: white;
-    border-radius: 10px;
-    padding: 24px 28px;
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border-top: 3px solid #028090;
+  }
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    border-left: 4px solid #028090;
   }
   .q-number {
     font-size: 11px;
     font-weight: 700;
-    color: #64748B;
+    color: #94A3B8;
     letter-spacing: 1px;
     text-transform: uppercase;
-    margin-bottom: 8px;
   }
   .q-category {
     display: inline-block;
-    background: #E8F6F8;
-    color: #028090;
+    background: #F0FDFA;
+    color: #0F766E;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 600;
     padding: 3px 10px;
     border-radius: 20px;
-    margin-bottom: 14px;
-  }
-  .q-text {
-    font-size: 17px;
-    font-weight: 600;
-    color: #1E293B;
-    line-height: 1.55;
-    margin-bottom: 6px;
+    border: 1px solid #CCFBF1;
   }
   .q-type-badge {
     display: inline-block;
     font-size: 10px;
     font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
-    margin-left: 8px;
-    vertical-align: middle;
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin-left: auto;
   }
-  .badge-mc { background: #FEF3C7; color: #B45309; }
-  .badge-sub { background: #F5F3FF; color: #5B21B6; }
+  .badge-mc   { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
+  .badge-sub  { background: #F5F3FF; color: #6D28D9; border: 1px solid #DDD6FE; }
+  .q-text {
+    font-size: 1.08em;
+    font-weight: 600;
+    color: #0F172A;
+    line-height: 1.6;
+  }
 
-  /* Result cards */
-  .result-correct {
-    background: #F0FDF4;
-    border: 1px solid #BBF7D0;
-    border-left: 4px solid #16A34A;
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin-bottom: 12px;
+  /* ── Radio buttons fix: force dark text ── */
+  div[role="radiogroup"] label,
+  div[role="radiogroup"] label p,
+  div[role="radiogroup"] label span,
+  div[data-baseweb="radio"] label,
+  div[data-baseweb="radio"] label p,
+  div[data-baseweb="radio"] label span,
+  .stRadio label,
+  .stRadio label p,
+  .stRadio span { color: #1E293B !important; }
+
+  .stRadio > div { gap: 8px; }
+  div[data-baseweb="radio"] {
+    background: #F8FAFC;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    transition: all 0.15s;
   }
-  .result-wrong {
-    background: #FFF7ED;
-    border: 1px solid #FED7AA;
-    border-left: 4px solid #EA580C;
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin-bottom: 12px;
+  div[data-baseweb="radio"]:hover {
+    border-color: #028090;
+    background: #F0FDFA;
   }
-  .result-partial {
-    background: #FEFCE8;
-    border: 1px solid #FEF08A;
-    border-left: 4px solid #CA8A04;
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin-bottom: 12px;
+
+  /* ── Text area ── */
+  .stTextArea textarea {
+    border-radius: 10px;
+    border: 1.5px solid #E2E8F0;
+    font-size: 0.95em;
+    color: #1E293B;
+    background: #FAFAFA;
+    padding: 12px 16px;
   }
-  .score-big {
-    font-size: 64px;
-    font-weight: 800;
+  .stTextArea textarea:focus { border-color: #028090; box-shadow: 0 0 0 3px rgba(2,128,144,0.1); }
+
+  /* ── Buttons ── */
+  .stButton > button {
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9em;
+    transition: all 0.15s;
+  }
+  .stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #028090, #0369A1);
+    border: none;
+    color: white;
+  }
+  .stButton > button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #026070, #025A8A);
+    box-shadow: 0 4px 12px rgba(2,128,144,0.3);
+  }
+
+  /* ── Score display ── */
+  .score-ring {
+    text-align: center;
+    background: white;
+    border-radius: 20px;
+    padding: 36px 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-bottom: 24px;
+  }
+  .score-num {
+    font-size: 5em;
+    font-weight: 900;
     color: #1B2A4A;
     line-height: 1;
+    letter-spacing: -2px;
   }
-  .score-label {
-    font-size: 14px;
-    color: #64748B;
-    margin-top: 4px;
-  }
-  .level-badge {
+  .score-denom { font-size: 1.2em; color: #94A3B8; font-weight: 500; }
+  .grade-pill {
     display: inline-block;
-    padding: 6px 18px;
-    border-radius: 20px;
-    font-size: 13px;
+    padding: 7px 20px;
+    border-radius: 30px;
+    font-size: 0.9em;
     font-weight: 700;
+    margin-top: 12px;
   }
 
-  /* Sidebar */
-  section[data-testid="stSidebar"] { background: #1B2A4A; }
-  section[data-testid="stSidebar"] * { color: #E2E8F0 !important; }
-  section[data-testid="stSidebar"] .stSelectbox label,
-  section[data-testid="stSidebar"] h1,
-  section[data-testid="stSidebar"] h2,
-  section[data-testid="stSidebar"] h3 { color: white !important; }
+  /* ── Result item cards ── */
+  .ri-correct {
+    background: #F0FDF4;
+    border-left: 4px solid #16A34A;
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+  }
+  .ri-wrong {
+    background: #FFF7ED;
+    border-left: 4px solid #EA580C;
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+  }
+  .ri-partial {
+    background: #FEFCE8;
+    border-left: 4px solid #CA8A04;
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+  }
 
-  /* Hide default radio dot - let streamlit handle it */
-  div[role="radiogroup"] label { cursor: pointer; }
+  /* ── Stat chips ── */
+  .stat-row { display: flex; gap: 12px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  .stat-chip {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 10px 20px;
+    text-align: center;
+    min-width: 100px;
+  }
+  .stat-val { font-size: 1.4em; font-weight: 800; color: #1B2A4A; display: block; }
+  .stat-lbl { font-size: 0.75em; color: #94A3B8; font-weight: 500; }
 
-  .nav-hint { font-size: 12px; color: #94A3B8; margin-top: 8px; }
+  /* ── Nav hint ── */
+  .nav-hint { font-size: 12px; color: #94A3B8; margin-top: 8px; text-align: center; }
+
+  /* ── Divider ── */
+  .section-divider { border: none; border-top: 1px solid #E2E8F0; margin: 24px 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -849,57 +1031,56 @@ init_session()
 
 # ── Sidebar ────────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## 🧠 Enhans 퀴즈")
+    st.markdown("""
+<div style="padding:0 4px 16px">
+  <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+       color:#4B6380;margin-bottom:6px">ENHANS</div>
+  <div style="font-size:1.2em;font-weight:800;color:white">기술 학습 퀴즈</div>
+</div>
+""", unsafe_allow_html=True)
     st.markdown("---")
 
     if st.session_state.page == "home":
-        st.markdown("### 레벨 선택")
-        level = st.selectbox(
-            "학습 레벨",
-            ["초급", "중급", "고급"],
-            help="초급: 기본 개념 | 중급: 심화 이해 | 고급: 실전 응용",
-        )
-
-        st.markdown("### Claude API Key")
-        api_key = st.text_input(
-            "API Key",
-            type="password",
-            placeholder="sk-ant-...",
-            help="주관식 채점에 필요합니다. https://console.anthropic.com에서 발급",
-        )
-
-        level_info = {
-            "초급": ("🟢", "기본 개념 이해", "15 객관식 + 5 주관식"),
-            "중급": ("🟡", "심화 이해·적용", "12 객관식 + 8 주관식"),
-            "고급": ("🔴", "실전 설계·응용", "10 객관식 + 10 주관식"),
-        }
-        icon, desc, qinfo = level_info[level]
-        st.markdown(f"""
-<div style='background:rgba(255,255,255,0.1);border-radius:8px;padding:12px;margin-top:12px'>
-<b>{icon} {level}</b><br>
-<span style='font-size:12px'>{desc}</span><br>
-<span style='font-size:11px;opacity:0.7'>{qinfo} · 총 20문제</span>
-</div>
+        st.markdown("""
+<div style="font-size:0.78em;font-weight:600;color:#4B6380;letter-spacing:1px;
+     text-transform:uppercase;margin-bottom:12px">레벨 안내</div>
 """, unsafe_allow_html=True)
+        for lvl, ico, desc, cnt in [
+            ("초급", "🌱", "핵심 기본 개념", "15객관 + 5주관"),
+            ("중급", "⚡", "심화 이해·적용", "12객관 + 8주관"),
+            ("고급", "🚀", "실전 설계·응용", "10객관 + 10주관"),
+        ]:
+            st.markdown(f"""
+<div style="padding:10px 12px;border-radius:8px;margin-bottom:6px;
+     background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">
+  <span style="font-size:0.95em;font-weight:600;color:#CBD5E1">{ico} {lvl}</span>
+  <span style="font-size:0.75em;color:#64748B;display:block;margin-top:2px">{desc} · {cnt}</span>
+</div>""", unsafe_allow_html=True)
 
     elif st.session_state.page == "quiz":
         q_idx = st.session_state.current_q
         total = len(st.session_state.questions)
         answered = len(st.session_state.answers)
 
-        st.markdown(f"### {st.session_state.level} 레벨")
-        st.progress((q_idx + 1) / total)
-        st.markdown(f"**문제 {q_idx + 1} / {total}**")
-        st.markdown(f"답변 완료: **{answered}** / {total}")
-        st.markdown("---")
+        st.markdown(f"""
+<div style="margin-bottom:14px">
+  <div style="font-size:0.78em;font-weight:600;color:#4B6380;letter-spacing:1px;text-transform:uppercase">
+    {st.session_state.level} 레벨 진행 중
+  </div>
+  <div style="font-size:1em;color:#94A3B8;margin-top:4px">답변 {answered}/{total} 완료</div>
+</div>
+""", unsafe_allow_html=True)
+        st.progress(answered / total)
 
-        # 문제 목록 (답변 여부 표시)
-        st.markdown("**문제 목록**")
+        st.markdown("""
+<div style="font-size:0.78em;font-weight:600;color:#4B6380;letter-spacing:1px;
+     text-transform:uppercase;margin:16px 0 10px">문제 목록</div>
+""", unsafe_allow_html=True)
         for i, q in enumerate(st.session_state.questions):
-            answered_mark = "✅" if q["id"] in st.session_state.answers else "○"
-            active_mark = "▶" if i == q_idx else " "
+            answered_mark = "✓" if q["id"] in st.session_state.answers else "·"
+            is_active = i == q_idx
             if st.button(
-                f"{active_mark}{answered_mark} {i+1}. {q['category']}",
+                f"{'▶ ' if is_active else ''}{answered_mark} {i+1}. {q['category']}",
                 key=f"nav_{i}",
                 use_container_width=True,
             ):
@@ -914,83 +1095,101 @@ with st.sidebar:
         sub_max = len(sub_questions) * 10
         total_max = mc_max + sub_max
 
-        st.markdown(f"### {st.session_state.level} 레벨 결과")
-        st.markdown(f"**총점: {total_score} / {total_max}**")
         pct = int(total_score / total_max * 100) if total_max > 0 else 0
-        st.progress(pct / 100)
+        grade = "🏆 최우수" if pct >= 90 else ("🥇 우수" if pct >= 80 else ("✅ 양호" if pct >= 60 else "📚 학습 필요"))
 
-        grade = "🏆 우수" if pct >= 80 else ("✅ 양호" if pct >= 60 else "📚 학습 필요")
-        st.markdown(f"**{grade}** ({pct}%)")
+        st.markdown(f"""
+<div style="text-align:center;padding:16px 0">
+  <div style="font-size:0.78em;font-weight:600;color:#4B6380;letter-spacing:1px;text-transform:uppercase">
+    {st.session_state.level} 레벨 결과
+  </div>
+  <div style="font-size:2.5em;font-weight:900;color:white;margin:8px 0 2px">{pct}%</div>
+  <div style="font-size:0.9em;color:#94A3B8">{total_score} / {total_max}점</div>
+  <div style="font-size:0.9em;color:#67E8F9;margin-top:6px">{grade}</div>
+</div>
+""", unsafe_allow_html=True)
+        st.progress(pct / 100)
 
 
 # ── Home Page ──────────────────────────────────────────────────────────────────
 if st.session_state.page == "home":
+
+    # Hero
     st.markdown("""
-<h1 style='color:#1B2A4A;font-size:2.2em;font-weight:800;margin-bottom:4px'>
-🧠 Enhans 기술 학습 퀴즈
-</h1>
-<p style='color:#64748B;font-size:1.1em;margin-bottom:32px'>
-AgentOS · 온톨로지 · AI Agent 플랫폼 핵심 기술 마스터하기
-</p>
+<div class="hero">
+  <div class="hero-tag">🧠 Enhans Learning Platform</div>
+  <h1>기술 학습 퀴즈</h1>
+  <p>AgentOS · 온톨로지 · AI Agent 플랫폼의 핵심 개념을 퀴즈로 마스터하세요.<br>
+  초급부터 고급까지, Claude AI가 주관식 답변을 채점하고 맞춤 피드백을 제공합니다.</p>
+</div>
 """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
+    # Level cards
+    col1, col2, col3 = st.columns(3, gap="medium")
     with col1:
         st.markdown("""
-<div class='q-card' style='border-left-color:#16A34A;text-align:center'>
-<div style='font-size:2em'>🟢</div>
-<h3 style='color:#1B2A4A;margin:8px 0 4px'>초급</h3>
-<p style='color:#64748B;font-size:0.9em'>Object, Link, AgentOS 5대 제품,<br>RAG 비교 등 핵심 개념</p>
-<p style='color:#028090;font-size:0.85em;font-weight:600'>15 객관식 + 5 주관식</p>
+<div class="level-card">
+  <div class="icon">🌱</div>
+  <h3>초급</h3>
+  <p>Object · Link · AgentOS 5대 제품<br>RAG 비교 등 핵심 기본 개념</p>
+  <span class="pill">15 객관식 + 5 주관식</span>
 </div>""", unsafe_allow_html=True)
     with col2:
         st.markdown("""
-<div class='q-card' style='border-left-color:#CA8A04;text-align:center'>
-<div style='font-size:2em'>🟡</div>
-<h3 style='color:#1B2A4A;margin:8px 0 4px'>중급</h3>
-<p style='color:#64748B;font-size:0.9em'>데이터 분류 기준, 거버넌스,<br>경쟁 기술 심층 비교</p>
-<p style='color:#028090;font-size:0.85em;font-weight:600'>12 객관식 + 8 주관식</p>
+<div class="level-card" style="border-color:#F59E0B;">
+  <div class="icon">⚡</div>
+  <h3>중급</h3>
+  <p>데이터 분류 기준 · 거버넌스<br>경쟁 기술 심층 비교</p>
+  <span class="pill" style="background:#FFFBEB;color:#B45309;border:1px solid #FDE68A">12 객관식 + 8 주관식</span>
 </div>""", unsafe_allow_html=True)
     with col3:
         st.markdown("""
-<div class='q-card' style='border-left-color:#DC2626;text-align:center'>
-<div style='font-size:2em'>🔴</div>
-<h3 style='color:#1B2A4A;margin:8px 0 4px'>고급</h3>
-<p style='color:#64748B;font-size:0.9em'>아키텍처 설계, 멀티 Agent,<br>실전 영업·전략 적용</p>
-<p style='color:#028090;font-size:0.85em;font-weight:600'>10 객관식 + 10 주관식</p>
+<div class="level-card" style="border-color:#EF4444;">
+  <div class="icon">🚀</div>
+  <h3>고급</h3>
+  <p>아키텍처 설계 · 멀티 Agent<br>실전 영업·전략 적용</p>
+  <span class="pill" style="background:#FFF1F2;color:#BE123C;border:1px solid #FECDD3">10 객관식 + 10 주관식</span>
 </div>""", unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown("<div style='margin:28px 0'></div>", unsafe_allow_html=True)
 
-    # Start button
+    # Start form
     col_a, col_b, col_c = st.columns([1, 2, 1])
     with col_b:
-        level_sel = st.selectbox("레벨 선택", ["초급", "중급", "고급"], key="home_level")
-        api_key_inp = st.text_input(
-            "Claude API Key (주관식 채점용)",
-            type="password",
-            placeholder="sk-ant-api...",
-            key="home_api"
-        )
-        if st.button("🚀 퀴즈 시작", type="primary", use_container_width=True):
-            if not api_key_inp.strip():
-                st.warning("⚠️ 주관식 채점을 위해 Claude API Key를 입력해주세요.")
-            else:
-                st.session_state.level = level_sel
-                st.session_state.api_key = api_key_inp
-                st.session_state.questions = QUIZ_DATA[level_sel].copy()
-                st.session_state.current_q = 0
-                st.session_state.answers = {}
-                st.session_state.results = {}
-                st.session_state.page = "quiz"
-                st.rerun()
+        st.markdown("""
+<div style="background:white;border-radius:16px;padding:28px 32px;border:1px solid #E2E8F0;box-shadow:0 2px 12px rgba(0,0,0,0.05)">
+<p style="font-size:0.95em;font-weight:700;color:#1E293B;margin:0 0 16px">퀴즈 시작하기</p>
+</div>
+""", unsafe_allow_html=True)
+        with st.container():
+            level_sel = st.selectbox("📚 레벨 선택", ["초급", "중급", "고급"], key="home_level")
+            api_key_inp = st.text_input(
+                "🔑 Claude API Key",
+                type="password",
+                placeholder="sk-ant-api03-...",
+                help="주관식 채점에 사용됩니다. console.anthropic.com에서 발급",
+                key="home_api"
+            )
+            st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
+            if st.button("퀴즈 시작 →", type="primary", use_container_width=True):
+                if not api_key_inp.strip():
+                    st.warning("⚠️ 주관식 채점을 위해 Claude API Key를 입력해주세요.")
+                else:
+                    st.session_state.level = level_sel
+                    st.session_state.api_key = api_key_inp
+                    st.session_state.questions = QUIZ_DATA[level_sel].copy()
+                    st.session_state.current_q = 0
+                    st.session_state.answers = {}
+                    st.session_state.results = {}
+                    st.session_state.page = "quiz"
+                    st.rerun()
 
     st.markdown("""
-<div style='background:#EEF2F7;border-radius:8px;padding:16px;margin-top:24px;font-size:0.88em;color:#475569'>
-<b>💡 퀴즈 안내</b><br>
-• 객관식: 즉시 정답 확인 가능 · 주관식: Claude AI가 채점 및 피드백 제공<br>
-• 문제는 인핸스 실제 기술 자료 기반으로 출제됩니다<br>
-• 결과 페이지에서 문제별 해설과 개선점을 확인할 수 있습니다
+<div class="info-box" style="margin-top:24px">
+  <strong>💡 퀴즈 안내</strong><br>
+  객관식 문제는 제출 시 즉시 정답을 확인합니다. 주관식 문제는 Claude AI가 답변을 분석해
+  점수, 잘된 부분, 보완할 내용, 핵심 인사이트를 제공합니다.
+  문제는 인핸스 실제 기술 자료를 기반으로 출제되며, 결과 페이지에서 문제별 해설을 확인할 수 있습니다.
 </div>
 """, unsafe_allow_html=True)
 
@@ -1002,9 +1201,24 @@ elif st.session_state.page == "quiz":
     q = questions[q_idx]
     total = len(questions)
 
-    # Progress bar top
-    st.progress((q_idx + 1) / total,
-                text=f"{st.session_state.level} · 문제 {q_idx+1}/{total}")
+    # Top progress
+    answered_so_far = len(st.session_state.answers)
+    st.markdown(f"""
+<div style="background:white;border-radius:12px;padding:14px 20px;margin-bottom:20px;
+     display:flex;align-items:center;justify-content:space-between;
+     border:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
+  <span style="font-size:0.82em;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px">
+    {st.session_state.level} 레벨
+  </span>
+  <span style="font-size:0.9em;font-weight:700;color:#028090">
+    {q_idx + 1} / {total}
+  </span>
+  <span style="font-size:0.82em;color:#94A3B8">
+    답변 완료 {answered_so_far}/{total}
+  </span>
+</div>
+""", unsafe_allow_html=True)
+    st.progress((q_idx) / total)
 
     # Question card
     type_badge = ('<span class="q-type-badge badge-mc">객관식</span>'
@@ -1013,9 +1227,12 @@ elif st.session_state.page == "quiz":
 
     st.markdown(f"""
 <div class="q-card">
-  <div class="q-number">문제 {q_idx + 1} / {total}</div>
-  <div class="q-category">📂 {q['category']}</div>
-  <div class="q-text">{q['question']} {type_badge}</div>
+  <div class="q-meta">
+    <span class="q-number">Q{q_idx + 1}</span>
+    <span class="q-category">{q['category']}</span>
+    {type_badge}
+  </div>
+  <div class="q-text">{q['question']}</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1024,32 +1241,30 @@ elif st.session_state.page == "quiz":
 
     if q["type"] == "mc":
         options = q["options"]
-        # Find current selection index
-        option_labels = [opt[3:] for opt in options]  # Remove "A) " prefix
         try:
             cur_idx = [opt[0] for opt in options].index(current_answer) if current_answer else None
         except ValueError:
             cur_idx = None
 
         selected = st.radio(
-            "답을 선택하세요:",
+            "선택지:",
             options,
             index=cur_idx,
             key=f"radio_{q['id']}",
             label_visibility="collapsed",
         )
         if selected:
-            st.session_state.answers[q["id"]] = selected[0]  # "A", "B", "C", "D"
+            st.session_state.answers[q["id"]] = selected[0]
 
     else:  # subjective
         st.markdown(
-            '<p style="color:#64748B;font-size:0.9em;margin-bottom:4px">💬 자유롭게 서술해주세요. Claude AI가 채점합니다.</p>',
+            '<p style="color:#64748B;font-size:0.88em;margin-bottom:6px">💬 자유롭게 서술해주세요. Claude AI가 채점 및 피드백을 제공합니다.</p>',
             unsafe_allow_html=True
         )
         text_val = st.text_area(
             "답변:",
             value=current_answer,
-            height=160,
+            height=170,
             key=f"text_{q['id']}",
             placeholder="핵심 개념, 예시, 이유 등을 포함해 설명해보세요...",
             label_visibility="collapsed",
@@ -1058,38 +1273,37 @@ elif st.session_state.page == "quiz":
             st.session_state.answers[q["id"]] = text_val
 
     # Navigation
-    st.markdown("---")
+    st.markdown("<hr class='section-divider'>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
 
     with col1:
         if q_idx > 0:
-            if st.button("◀ 이전", use_container_width=True):
+            if st.button("← 이전", use_container_width=True):
                 st.session_state.current_q -= 1
                 st.rerun()
 
     with col2:
-        answered_count = len(st.session_state.answers)
-        unanswered = total - answered_count
+        unanswered = total - len(st.session_state.answers)
         if unanswered > 0:
             st.markdown(
-                f'<p class="nav-hint" style="text-align:center">미답변 {unanswered}문제 남음</p>',
+                f'<p class="nav-hint">미답변 {unanswered}문제 남음</p>',
                 unsafe_allow_html=True
             )
         else:
             st.markdown(
-                '<p class="nav-hint" style="text-align:center;color:#16A34A">✅ 모든 문제 답변 완료</p>',
+                '<p class="nav-hint" style="color:#16A34A;font-weight:600">✅ 모든 문제 답변 완료</p>',
                 unsafe_allow_html=True
             )
 
     with col3:
         if q_idx < total - 1:
-            if st.button("다음 ▶", type="primary", use_container_width=True):
+            if st.button("다음 →", type="primary", use_container_width=True):
                 st.session_state.current_q += 1
                 st.rerun()
         else:
             if st.button("📊 제출 및 채점", type="primary", use_container_width=True):
                 if len(st.session_state.answers) < total:
-                    st.warning(f"⚠️ 아직 {total - len(st.session_state.answers)}문제가 미답변입니다. 모두 답변 후 제출해주세요.")
+                    st.warning(f"⚠️ 아직 {total - len(st.session_state.answers)}문제가 미답변입니다.")
                 else:
                     st.session_state.page = "results"
                     st.rerun()
@@ -1155,25 +1369,41 @@ elif st.session_state.page == "results":
     col_s1, col_s2, col_s3 = st.columns([1, 2, 1])
     with col_s2:
         st.markdown(f"""
-<div style='text-align:center;background:white;border-radius:16px;
-padding:32px;box-shadow:0 4px 16px rgba(0,0,0,0.1);margin-bottom:24px'>
-<div class='score-big'>{total_score}</div>
-<div style='font-size:1.1em;color:#64748B'>/ {total_max}점</div>
-<div style='margin:12px 0'>
-  <span class='level-badge' style='background:{gcolor}20;color:{gcolor}'>{icon} {grade}</span>
-</div>
-<div style='font-size:0.9em;color:#64748B;margin-top:8px'>
-  {st.session_state.level} 레벨 · {pct}% 정답률
-</div>
-<div style='display:flex;justify-content:center;gap:24px;margin-top:16px;font-size:0.88em'>
-  <div><span style='color:#028090;font-weight:700'>{mc_score}</span>/{len(mc_qs)*10} 객관식</div>
-  <div><span style='color:#5B21B6;font-weight:700'>{sub_score}</span>/{len(sub_qs)*10} 주관식</div>
-</div>
+<div class="score-ring">
+  <div style="font-size:0.82em;font-weight:600;color:#94A3B8;letter-spacing:1px;
+       text-transform:uppercase;margin-bottom:8px">{st.session_state.level} 레벨 결과</div>
+  <div class="score-num">{total_score}</div>
+  <div class="score-denom">/ {total_max}점</div>
+  <div>
+    <span class="grade-pill" style="background:{gcolor}18;color:{gcolor};border:1.5px solid {gcolor}40">
+      {icon} {grade}
+    </span>
+  </div>
+  <div style="font-size:0.85em;color:#64748B;margin-top:10px">정답률 {pct}%</div>
+  <div class="stat-row">
+    <div class="stat-chip">
+      <span class="stat-val" style="color:#028090">{mc_score}</span>
+      <span class="stat-lbl">객관식 / {len(mc_qs)*10}</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-val" style="color:#6D28D9">{sub_score}</span>
+      <span class="stat-lbl">주관식 / {len(sub_qs)*10}</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-val">{pct}%</span>
+      <span class="stat-lbl">정답률</span>
+    </div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
     # ── 문제별 결과 ──────────────────────────────────────────────────────────────
-    st.markdown("## 📋 문제별 상세 결과")
+    st.markdown("""
+<div style="margin:28px 0 16px">
+  <span style="font-size:1.1em;font-weight:700;color:#1E293B">📋 문제별 상세 결과</span>
+  <span style="font-size:0.82em;color:#94A3B8;margin-left:10px">클릭해서 펼쳐보기</span>
+</div>
+""", unsafe_allow_html=True)
 
     for i, q in enumerate(questions):
         r = results.get(q["id"], {})
@@ -1216,10 +1446,14 @@ padding:32px;box-shadow:0 4px 16px rgba(0,0,0,0.1);margin-bottom:24px'>
                 with st.expander("📖 모범 답안 기준 보기"):
                     st.markdown(q.get("answer_key", ""))
 
-    st.markdown("---")
+    st.markdown("<hr class='section-divider'>", unsafe_allow_html=True)
+    st.markdown("""
+<div style="background:white;border-radius:12px;padding:20px 24px;border:1px solid #E2E8F0;margin-bottom:16px">
+  <p style="font-size:0.9em;font-weight:600;color:#1E293B;margin:0 0 14px">다음 단계</p>
+""", unsafe_allow_html=True)
     col_r1, col_r2, col_r3 = st.columns(3)
     with col_r1:
-        if st.button("🔄 같은 레벨 다시", use_container_width=True):
+        if st.button("🔄 다시 풀기", use_container_width=True):
             st.session_state.questions = QUIZ_DATA[st.session_state.level].copy()
             st.session_state.current_q = 0
             st.session_state.answers = {}
@@ -1244,3 +1478,4 @@ padding:32px;box-shadow:0 4px 16px rgba(0,0,0,0.1);margin-bottom:24px'>
             st.session_state.results = {}
             st.session_state.page = "quiz"
             st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
