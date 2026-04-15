@@ -13,19 +13,32 @@ st.set_page_config(
 # ── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
   html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-  .stApp { background: #F1F5F9; }
-  .main .block-container { padding-top: 2rem; max-width: 900px; }
+  .stApp { background: #ECEEF2; }
+  .main .block-container { padding-top: 2rem; max-width: 920px; }
+
+  /* ════════════════════════════════════════
+     GLOBAL TEXT — prevent any white-on-white
+  ════════════════════════════════════════ */
+  .stMarkdown, .stMarkdown p, .stMarkdown li,
+  .stMarkdown h1, .stMarkdown h2, .stMarkdown h3,
+  .stMarkdown strong, .stMarkdown em,
+  p, li, span:not([style]) { color: #1E293B; }
 
   /* ── Progress bar ── */
-  .stProgress > div > div > div > div { background: linear-gradient(90deg, #028090, #0EA5E9) !important; border-radius: 4px; }
+  .stProgress > div > div > div > div {
+    background: linear-gradient(90deg, #028090, #0EA5E9) !important;
+    border-radius: 99px;
+  }
 
-  /* ── Sidebar ── */
+  /* ════════════════════════════════════════
+     SIDEBAR
+  ════════════════════════════════════════ */
   section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0F1E38 0%, #1B2A4A 100%);
-    border-right: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(175deg, #09162A 0%, #1B2A4A 60%, #022A33 100%);
+    border-right: 1px solid rgba(255,255,255,0.05);
   }
   section[data-testid="stSidebar"] > div { padding-top: 1.5rem; }
   section[data-testid="stSidebar"] h1,
@@ -33,276 +46,341 @@ st.markdown("""
   section[data-testid="stSidebar"] h3,
   section[data-testid="stSidebar"] p,
   section[data-testid="stSidebar"] label,
-  section[data-testid="stSidebar"] span { color: #CBD5E1 !important; }
-  section[data-testid="stSidebar"] .stMarkdown p { color: #94A3B8 !important; }
-  section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.1); }
+  section[data-testid="stSidebar"] .stMarkdown,
+  section[data-testid="stSidebar"] .stMarkdown p,
+  section[data-testid="stSidebar"] span { color: #94A3B8 !important; }
+  section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.08); }
   section[data-testid="stSidebar"] .stButton > button {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #CBD5E1 !important;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    color: #94A3B8 !important;
     border-radius: 8px;
-    font-size: 0.82em;
+    font-size: 0.8em;
     text-align: left;
-    padding: 6px 10px;
+    padding: 7px 10px;
+    transition: all 0.15s;
   }
   section[data-testid="stSidebar"] .stButton > button:hover {
-    background: rgba(2,128,144,0.25);
-    border-color: #028090;
-    color: white !important;
+    background: rgba(2,128,144,0.2);
+    border-color: rgba(2,128,144,0.5);
+    color: #E2E8F0 !important;
   }
-  section[data-testid="stSidebar"] .stSelectbox > div > div {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: white;
-  }
-  section[data-testid="stSidebar"] .stTextInput > div > div > input {
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: white;
-  }
+  section[data-testid="stSidebar"] .stSelectbox > div > div { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
+  section[data-testid="stSidebar"] .stTextInput > div > div > input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: white; }
 
-  /* ── Hero banner ── */
+  /* ════════════════════════════════════════
+     HERO BANNER
+  ════════════════════════════════════════ */
   .hero {
-    background: linear-gradient(135deg, #0F1E38 0%, #1B2A4A 50%, #023E48 100%);
-    border-radius: 20px;
-    padding: 44px 48px;
+    background: linear-gradient(135deg, #09162A 0%, #1B2A4A 45%, #023042 100%);
+    border-radius: 22px;
+    padding: 48px 52px;
     margin-bottom: 28px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 20px 60px rgba(9,22,42,0.25);
   }
   .hero::before {
     content: '';
     position: absolute;
-    top: -60px; right: -60px;
-    width: 280px; height: 280px;
-    background: radial-gradient(circle, rgba(2,128,144,0.18) 0%, transparent 70%);
+    top: -80px; right: -80px;
+    width: 340px; height: 340px;
+    background: radial-gradient(circle, rgba(2,128,144,0.22) 0%, transparent 68%);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(14,165,233,0.1) 0%, transparent 70%);
     border-radius: 50%;
   }
   .hero-tag {
-    display: inline-block;
-    background: rgba(2,128,144,0.25);
-    border: 1px solid rgba(2,128,144,0.5);
-    color: #67E8F9;
-    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(2,128,144,0.2);
+    border: 1px solid rgba(2,128,144,0.45);
+    color: #67E8F9 !important;
+    font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.8px;
     text-transform: uppercase;
-    padding: 4px 14px;
-    border-radius: 20px;
-    margin-bottom: 16px;
+    padding: 5px 14px;
+    border-radius: 99px;
+    margin-bottom: 18px;
   }
-  .hero h1 {
-    color: white !important;
-    font-size: 2.2em;
-    font-weight: 800;
-    margin: 0 0 10px;
-    line-height: 1.2;
-  }
-  .hero p {
-    color: #94A3B8 !important;
-    font-size: 1.05em;
-    margin: 0;
-    line-height: 1.6;
-  }
+  .hero h1 { color: white !important; font-size: 2.3em; font-weight: 900; margin: 0 0 12px; line-height: 1.15; }
+  .hero p  { color: #94A3B8 !important; font-size: 1em; margin: 0; line-height: 1.7; }
 
-  /* ── Level cards ── */
+  /* ════════════════════════════════════════
+     LEVEL CARDS
+  ════════════════════════════════════════ */
   .level-card {
     background: white;
-    border-radius: 14px;
-    padding: 24px 20px;
+    border-radius: 16px;
+    padding: 26px 20px;
     text-align: center;
-    border: 2px solid #E2E8F0;
-    transition: all 0.2s;
-    cursor: pointer;
-    height: 100%;
+    border: 1.5px solid #E2E8F0;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
-  .level-card:hover { border-color: #028090; box-shadow: 0 8px 24px rgba(2,128,144,0.12); transform: translateY(-2px); }
-  .level-card .icon { font-size: 2.2em; margin-bottom: 10px; }
-  .level-card h3 { color: #1E293B; font-size: 1.1em; font-weight: 700; margin: 0 0 8px; }
-  .level-card p { color: #64748B; font-size: 0.82em; margin: 0 0 10px; line-height: 1.5; }
-  .level-card .pill { display: inline-block; background: #EEF2FF; color: #4F46E5; font-size: 0.75em; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .level-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(2,128,144,0.14); border-color: #028090; }
+  .level-card .icon { font-size: 2.4em; margin-bottom: 12px; display: block; }
+  .level-card h3 { color: #0F172A !important; font-size: 1.05em; font-weight: 800; margin: 0 0 8px; }
+  .level-card p  { color: #64748B !important; font-size: 0.8em; margin: 0 0 14px; line-height: 1.55; }
+  .level-card .pill { display: inline-block; background: #EEF2FF; color: #4338CA; font-size: 0.73em; font-weight: 700; padding: 4px 12px; border-radius: 99px; border: 1px solid #C7D2FE; }
 
-  /* ── Info box ── */
+  /* ════════════════════════════════════════
+     INFO / NOTICE BOX
+  ════════════════════════════════════════ */
   .info-box {
     background: white;
-    border-radius: 12px;
-    padding: 18px 22px;
+    border-radius: 14px;
+    padding: 18px 24px;
     border: 1px solid #E2E8F0;
-    font-size: 0.87em;
-    color: #475569;
-    line-height: 1.7;
-    margin-top: 4px;
+    font-size: 0.86em;
+    color: #475569 !important;
+    line-height: 1.75;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
-  .info-box strong { color: #1E293B; }
+  .info-box strong { color: #0F172A !important; }
 
-  /* ── Question card ── */
+  /* ════════════════════════════════════════
+     QUESTION CARD
+  ════════════════════════════════════════ */
   .q-card {
     background: white;
-    border-radius: 14px;
-    padding: 28px 32px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border-radius: 16px;
+    padding: 28px 32px 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.06);
     border-top: 3px solid #028090;
   }
-  .q-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .q-number {
-    font-size: 11px;
-    font-weight: 700;
-    color: #94A3B8;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+  .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .q-num-bubble {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #028090, #0369A1);
+    color: white !important;
+    font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
   }
   .q-category {
-    display: inline-block;
-    background: #F0FDFA;
-    color: #0F766E;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
+    background: #F0FDFA; color: #0F766E !important;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 99px;
     border: 1px solid #CCFBF1;
   }
-  .q-type-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 9px;
-    border-radius: 20px;
-    margin-left: auto;
-  }
-  .badge-mc   { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
-  .badge-sub  { background: #F5F3FF; color: #6D28D9; border: 1px solid #DDD6FE; }
-  .q-text {
-    font-size: 1.08em;
-    font-weight: 600;
-    color: #0F172A;
-    line-height: 1.6;
-  }
+  .q-type-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-left: auto; }
+  .badge-mc  { background: #FFF7ED; color: #C2410C !important; border: 1px solid #FED7AA; }
+  .badge-sub { background: #F5F3FF; color: #6D28D9 !important; border: 1px solid #DDD6FE; }
+  .q-text { font-size: 1.08em; font-weight: 600; color: #0F172A !important; line-height: 1.65; }
 
-  /* ── Radio buttons fix: force dark text ── */
+  /* ════════════════════════════════════════
+     RADIO BUTTONS — force dark text always
+  ════════════════════════════════════════ */
   div[role="radiogroup"] label,
   div[role="radiogroup"] label p,
   div[role="radiogroup"] label span,
   div[data-baseweb="radio"] label,
   div[data-baseweb="radio"] label p,
   div[data-baseweb="radio"] label span,
-  .stRadio label,
-  .stRadio label p,
-  .stRadio span { color: #1E293B !important; }
+  .stRadio label, .stRadio label p, .stRadio span,
+  [data-testid="stMarkdownContainer"] p { color: #1E293B !important; }
 
   .stRadio > div { gap: 8px; }
   div[data-baseweb="radio"] {
     background: #F8FAFC;
     border: 1.5px solid #E2E8F0;
-    border-radius: 10px;
-    padding: 12px 16px;
+    border-radius: 11px;
+    padding: 13px 17px;
     transition: all 0.15s;
   }
-  div[data-baseweb="radio"]:hover {
-    border-color: #028090;
-    background: #F0FDFA;
-  }
+  div[data-baseweb="radio"]:hover { border-color: #028090; background: #F0FDFA; }
 
-  /* ── Text area ── */
+  /* ════════════════════════════════════════
+     TEXT AREA
+  ════════════════════════════════════════ */
   .stTextArea textarea {
-    border-radius: 10px;
+    border-radius: 11px;
     border: 1.5px solid #E2E8F0;
     font-size: 0.95em;
-    color: #1E293B;
+    color: #1E293B !important;
     background: #FAFAFA;
     padding: 12px 16px;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
   .stTextArea textarea:focus { border-color: #028090; box-shadow: 0 0 0 3px rgba(2,128,144,0.1); }
 
-  /* ── Buttons ── */
-  .stButton > button {
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9em;
-    transition: all 0.15s;
-  }
+  /* ════════════════════════════════════════
+     BUTTONS
+  ════════════════════════════════════════ */
+  .stButton > button { border-radius: 9px; font-weight: 600; font-size: 0.9em; transition: all 0.15s; }
   .stButton > button[kind="primary"] {
     background: linear-gradient(135deg, #028090, #0369A1);
-    border: none;
-    color: white;
+    border: none; color: white !important;
+    box-shadow: 0 2px 8px rgba(2,128,144,0.25);
   }
   .stButton > button[kind="primary"]:hover {
     background: linear-gradient(135deg, #026070, #025A8A);
-    box-shadow: 0 4px 12px rgba(2,128,144,0.3);
+    box-shadow: 0 6px 18px rgba(2,128,144,0.35);
+    transform: translateY(-1px);
   }
 
-  /* ── Score display ── */
-  .score-ring {
+  /* ════════════════════════════════════════
+     SCORE DISPLAY
+  ════════════════════════════════════════ */
+  .score-hero {
     text-align: center;
-    background: white;
-    border-radius: 20px;
-    padding: 36px 24px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    background: linear-gradient(150deg, #09162A 0%, #1B2A4A 100%);
+    border-radius: 22px;
+    padding: 44px 28px 36px;
+    box-shadow: 0 16px 48px rgba(9,22,42,0.22);
     margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .score-hero::before {
+    content: '';
+    position: absolute; top: -50px; right: -50px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(2,128,144,0.2) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+  .score-level-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: #4B6380 !important;
+    margin-bottom: 12px;
   }
   .score-num {
-    font-size: 5em;
-    font-weight: 900;
-    color: #1B2A4A;
-    line-height: 1;
-    letter-spacing: -2px;
+    font-size: 5.5em; font-weight: 900;
+    background: linear-gradient(135deg, #FFFFFF, #94D5DB);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1; letter-spacing: -3px;
   }
-  .score-denom { font-size: 1.2em; color: #94A3B8; font-weight: 500; }
+  .score-denom { font-size: 1.1em; color: #475569 !important; font-weight: 500; margin-top: 4px; }
   .grade-pill {
-    display: inline-block;
-    padding: 7px 20px;
-    border-radius: 30px;
-    font-size: 0.9em;
-    font-weight: 700;
-    margin-top: 12px;
+    display: inline-block; padding: 8px 22px;
+    border-radius: 99px; font-size: 0.88em; font-weight: 700;
+    margin-top: 16px;
   }
-
-  /* ── Result item cards ── */
-  .ri-correct {
-    background: #F0FDF4;
-    border-left: 4px solid #16A34A;
-    border-radius: 0 10px 10px 0;
-    padding: 14px 18px;
-    margin-bottom: 10px;
-  }
-  .ri-wrong {
-    background: #FFF7ED;
-    border-left: 4px solid #EA580C;
-    border-radius: 0 10px 10px 0;
-    padding: 14px 18px;
-    margin-bottom: 10px;
-  }
-  .ri-partial {
-    background: #FEFCE8;
-    border-left: 4px solid #CA8A04;
-    border-radius: 0 10px 10px 0;
-    padding: 14px 18px;
-    margin-bottom: 10px;
-  }
+  .score-pct { font-size: 0.88em; color: #64748B !important; margin-top: 10px; }
 
   /* ── Stat chips ── */
-  .stat-row { display: flex; gap: 12px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  .stat-row { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
   .stat-chip {
-    background: #F8FAFC;
-    border: 1px solid #E2E8F0;
-    border-radius: 10px;
-    padding: 10px 20px;
-    text-align: center;
-    min-width: 100px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 12px 22px; text-align: center; min-width: 100px;
   }
-  .stat-val { font-size: 1.4em; font-weight: 800; color: #1B2A4A; display: block; }
-  .stat-lbl { font-size: 0.75em; color: #94A3B8; font-weight: 500; }
+  .stat-val { font-size: 1.5em; font-weight: 900; display: block; }
+  .stat-lbl { font-size: 0.72em; color: #4B6380 !important; font-weight: 500; margin-top: 2px; }
 
-  /* ── Nav hint ── */
-  .nav-hint { font-size: 12px; color: #94A3B8; margin-top: 8px; text-align: center; }
+  /* ════════════════════════════════════════
+     RESULT DETAIL CARDS (custom HTML)
+  ════════════════════════════════════════ */
+  .rd-wrap {
+    background: white;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .rd-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+  }
+  .rd-correct .rd-header  { background: #F0FDF4; border-left: 4px solid #16A34A; }
+  .rd-wrong   .rd-header  { background: #FFF7ED; border-left: 4px solid #EA580C; }
+  .rd-partial .rd-header  { background: #FEFCE8; border-left: 4px solid #CA8A04; }
+  .rd-icon { font-size: 1.15em; flex-shrink: 0; }
+  .rd-title { font-size: 0.88em; font-weight: 600; color: #1E293B !important; flex: 1; }
+  .rd-score-tag {
+    font-size: 0.78em; font-weight: 700; padding: 3px 10px; border-radius: 99px; flex-shrink: 0;
+  }
+  .rd-correct .rd-score-tag { background: #DCFCE7; color: #15803D !important; }
+  .rd-wrong   .rd-score-tag { background: #FFEDD5; color: #C2410C !important; }
+  .rd-partial .rd-score-tag { background: #FEF9C3; color: #A16207 !important; }
+  .rd-body { padding: 0 20px 18px 20px; }
+  .rd-section { margin-top: 14px; }
+  .rd-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: #94A3B8 !important; margin-bottom: 6px;
+  }
+  .rd-section-text { font-size: 0.88em; line-height: 1.65; color: #334155 !important; }
+  .rd-q-text  { font-size: 0.9em; font-weight: 600; color: #1E293B !important; line-height: 1.55; }
+  .rd-my-ans  { font-size: 0.87em; color: #475569 !important; line-height: 1.55; }
 
-  /* ── Divider ── */
+  /* feedback blocks */
+  .fb-good {
+    background: #F0FDF4; border-left: 3px solid #22C55E;
+    border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px;
+    font-size: 0.85em; color: #166534 !important; line-height: 1.6;
+  }
+  .fb-warn {
+    background: #FFFBEB; border-left: 3px solid #F59E0B;
+    border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px;
+    font-size: 0.85em; color: #92400E !important; line-height: 1.6;
+  }
+  .fb-info {
+    background: #EFF6FF; border-left: 3px solid #3B82F6;
+    border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px;
+    font-size: 0.85em; color: #1E40AF !important; line-height: 1.6;
+  }
+  .fb-answer {
+    background: #F8FAFC; border: 1px dashed #CBD5E1;
+    border-radius: 10px; padding: 12px 16px; margin-top: 10px;
+    font-size: 0.83em; color: #475569 !important; line-height: 1.65;
+  }
+  .fb-correct-ans {
+    background: #F0FDF4; border: 1px solid #BBF7D0;
+    border-radius: 8px; padding: 8px 14px; margin-top: 8px;
+    font-size: 0.85em; color: #166534 !important; font-weight: 600;
+  }
+  .fb-explan {
+    background: #F8FAFC; border-left: 3px solid #94A3B8;
+    border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px;
+    font-size: 0.85em; color: #475569 !important; line-height: 1.6;
+  }
+
+  /* ════════════════════════════════════════
+     EXPANDER OVERRIDES
+  ════════════════════════════════════════ */
+  .streamlit-expanderHeader { font-size: 0.9em !important; color: #1E293B !important; }
+  .streamlit-expanderHeader p { color: #1E293B !important; }
+  .streamlit-expanderContent { background: white !important; }
+  .streamlit-expanderContent p,
+  .streamlit-expanderContent span,
+  .streamlit-expanderContent li { color: #334155 !important; }
+
+  /* ── alert/info/success/warning overrides ── */
+  div[data-testid="stAlert"] { border-radius: 10px; }
+  div[data-testid="stAlert"] p,
+  div[data-testid="stAlert"] span { color: #1E293B !important; }
+
+  /* ════════════════════════════════════════
+     MISC
+  ════════════════════════════════════════ */
+  .nav-hint { font-size: 12px; color: #94A3B8; text-align: center; }
   .section-divider { border: none; border-top: 1px solid #E2E8F0; margin: 24px 0; }
+
+  /* progress bar top strip */
+  .quiz-topbar {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 22px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #E8ECF0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
 </style>
 """, unsafe_allow_html=True)
 
@@ -1204,17 +1282,15 @@ elif st.session_state.page == "quiz":
     # Top progress
     answered_so_far = len(st.session_state.answers)
     st.markdown(f"""
-<div style="background:white;border-radius:12px;padding:14px 20px;margin-bottom:20px;
-     display:flex;align-items:center;justify-content:space-between;
-     border:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
-  <span style="font-size:0.82em;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:0.5px">
+<div class="quiz-topbar">
+  <span style="font-size:0.8em;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px">
     {st.session_state.level} 레벨
   </span>
-  <span style="font-size:0.9em;font-weight:700;color:#028090">
-    {q_idx + 1} / {total}
+  <span style="font-size:1em;font-weight:800;color:#028090;letter-spacing:-0.5px">
+    {q_idx + 1} <span style="color:#CBD5E1;font-weight:400"> / </span> {total}
   </span>
-  <span style="font-size:0.82em;color:#94A3B8">
-    답변 완료 {answered_so_far}/{total}
+  <span style="font-size:0.8em;color:#94A3B8;font-weight:500">
+    완료 {answered_so_far}/{total}
   </span>
 </div>
 """, unsafe_allow_html=True)
@@ -1228,7 +1304,7 @@ elif st.session_state.page == "quiz":
     st.markdown(f"""
 <div class="q-card">
   <div class="q-meta">
-    <span class="q-number">Q{q_idx + 1}</span>
+    <div class="q-num-bubble">{q_idx + 1}</div>
     <span class="q-category">{q['category']}</span>
     {type_badge}
   </div>
@@ -1369,28 +1445,27 @@ elif st.session_state.page == "results":
     col_s1, col_s2, col_s3 = st.columns([1, 2, 1])
     with col_s2:
         st.markdown(f"""
-<div class="score-ring">
-  <div style="font-size:0.82em;font-weight:600;color:#94A3B8;letter-spacing:1px;
-       text-transform:uppercase;margin-bottom:8px">{st.session_state.level} 레벨 결과</div>
+<div class="score-hero">
+  <div class="score-level-tag">{st.session_state.level} 레벨 결과</div>
   <div class="score-num">{total_score}</div>
-  <div class="score-denom">/ {total_max}점</div>
+  <div class="score-denom">/ {total_max} 점</div>
   <div>
-    <span class="grade-pill" style="background:{gcolor}18;color:{gcolor};border:1.5px solid {gcolor}40">
+    <span class="grade-pill" style="background:{gcolor}25;color:{gcolor};border:1.5px solid {gcolor}60">
       {icon} {grade}
     </span>
   </div>
-  <div style="font-size:0.85em;color:#64748B;margin-top:10px">정답률 {pct}%</div>
+  <div class="score-pct">정답률 {pct}%</div>
   <div class="stat-row">
     <div class="stat-chip">
-      <span class="stat-val" style="color:#028090">{mc_score}</span>
+      <span class="stat-val" style="color:#67E8F9">{mc_score}</span>
       <span class="stat-lbl">객관식 / {len(mc_qs)*10}</span>
     </div>
     <div class="stat-chip">
-      <span class="stat-val" style="color:#6D28D9">{sub_score}</span>
+      <span class="stat-val" style="color:#C4B5FD">{sub_score}</span>
       <span class="stat-lbl">주관식 / {len(sub_qs)*10}</span>
     </div>
     <div class="stat-chip">
-      <span class="stat-val">{pct}%</span>
+      <span class="stat-val" style="color:#86EFAC">{pct}%</span>
       <span class="stat-lbl">정답률</span>
     </div>
   </div>
@@ -1409,42 +1484,74 @@ elif st.session_state.page == "results":
         r = results.get(q["id"], {})
         score = r.get("score", 0)
         max_s = r.get("max_score", 10)
+        user_answer_text = answers.get(q["id"], "(미답변)")
 
         if q["type"] == "mc":
             correct = r.get("correct", False)
-            card_class = "result-correct" if correct else "result-wrong"
+            rd_cls  = "rd-correct" if correct else "rd-wrong"
             status_icon = "✅" if correct else "❌"
+            score_label = "정답" if correct else "오답"
         else:
-            grade_sub = r.get("grade", "")
             if score >= 8:
-                card_class, status_icon = "result-correct", "🏆"
+                rd_cls, status_icon = "rd-correct", "🏆"
+                score_label = f"{score}/10"
             elif score >= 5:
-                card_class, status_icon = "result-partial", "✅"
+                rd_cls, status_icon = "rd-partial", "📝"
+                score_label = f"{score}/10"
             else:
-                card_class, status_icon = "result-wrong", "📚"
+                rd_cls, status_icon = "rd-wrong", "📚"
+                score_label = f"{score}/10"
+
+        q_preview = q["question"][:55] + ("..." if len(q["question"]) > 55 else "")
+
+        # Build inner HTML
+        inner = f"""
+<div class="rd-section">
+  <div class="rd-section-label">문제</div>
+  <div class="rd-q-text">{q['question']}</div>
+</div>
+<div class="rd-section">
+  <div class="rd-section-label">내 답변</div>
+  <div class="rd-my-ans">{user_answer_text}</div>
+</div>
+"""
+        if q["type"] == "mc":
+            ans_letter = q["answer"]
+            correct_option = next((o for o in q.get("options", []) if o.startswith(ans_letter)), ans_letter)
+            inner += f"""
+<div class="rd-section">
+  <div class="rd-section-label">정답</div>
+  <div class="fb-correct-ans">✔ {correct_option}</div>
+</div>
+"""
+            if r.get("explanation"):
+                inner += f'<div class="fb-explan">💡 <strong style="color:#475569">해설:</strong> {r["explanation"]}</div>'
+        else:
+            grade_txt = r.get("grade", "")
+            inner += f"""
+<div class="rd-section">
+  <div class="rd-section-label">점수 · 평가</div>
+  <div style="font-size:0.88em;font-weight:700;color:#1E293B">{score}/10점 &nbsp;·&nbsp; <span style="color:#6D28D9">{grade_txt}</span></div>
+</div>
+"""
+            if r.get("correct_points"):
+                inner += f'<div class="fb-good">✅ <strong style="color:#166534">잘 된 부분:</strong> {r["correct_points"]}</div>'
+            if r.get("improvement"):
+                inner += f'<div class="fb-warn">📌 <strong style="color:#92400E">보완할 부분:</strong> {r["improvement"]}</div>'
+            if r.get("key_insight"):
+                inner += f'<div class="fb-info">💡 <strong style="color:#1E40AF">핵심 인사이트:</strong> {r["key_insight"]}</div>'
+            ak = q.get("answer_key", "")
+            if ak:
+                inner += f'<div class="fb-answer">📖 <strong style="color:#334155">모범 답안 기준:</strong><br>{ak}</div>'
 
         with st.expander(
-            f"{status_icon} 문제 {i+1}. [{q['category']}] {q['question'][:50]}... "
-            f"({score}/{max_s}점)",
+            f"{status_icon}  문제 {i+1}  [{q['category']}]  {q_preview}  ({score_label})",
             expanded=False,
         ):
-            st.markdown(f"**📝 문제:** {q['question']}")
-            st.markdown(f"**💬 내 답변:** {answers.get(q['id'], '(미답변)')}")
-
-            if q["type"] == "mc":
-                st.markdown(f"**✔ 정답:** {q['answer']}번")
-                if r.get("explanation"):
-                    st.info(f"💡 **해설:** {r['explanation']}")
-            else:
-                st.markdown(f"**📊 점수:** {score}/10점 · {r.get('grade', '')}")
-                if r.get("correct_points"):
-                    st.success(f"✅ **잘 된 부분:** {r['correct_points']}")
-                if r.get("improvement"):
-                    st.warning(f"📌 **보완할 부분:** {r['improvement']}")
-                if r.get("key_insight"):
-                    st.info(f"💡 **핵심 인사이트:** {r['key_insight']}")
-                with st.expander("📖 모범 답안 기준 보기"):
-                    st.markdown(q.get("answer_key", ""))
+            st.markdown(
+                f'<div class="rd-wrap {rd_cls}"><div class="rd-body">{inner}</div></div>',
+                unsafe_allow_html=True
+            )
 
     st.markdown("<hr class='section-divider'>", unsafe_allow_html=True)
     st.markdown("""
