@@ -16,16 +16,44 @@ st.markdown("""
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
   html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-  .stApp { background: #ECEEF2; }
-  .main .block-container { padding-top: 2rem; max-width: 920px; }
+  .stApp { background: #EEF0F4; }
+  .main .block-container { padding-top: 2rem; max-width: 960px; }
 
   /* ════════════════════════════════════════
-     GLOBAL TEXT — prevent any white-on-white
+     GLOBAL TEXT — comprehensive contrast fix
   ════════════════════════════════════════ */
+  /* All markdown containers */
   .stMarkdown, .stMarkdown p, .stMarkdown li,
   .stMarkdown h1, .stMarkdown h2, .stMarkdown h3,
-  .stMarkdown strong, .stMarkdown em,
-  p, li, span:not([style]) { color: #1E293B; }
+  .stMarkdown strong, .stMarkdown em { color: #1E293B !important; }
+
+  /* Streamlit widget labels */
+  .stSelectbox label, .stTextInput label,
+  .stTextArea label, .stRadio label,
+  .stCheckbox label, .stNumberInput label,
+  [data-testid="stWidgetLabel"],
+  [data-testid="stWidgetLabel"] p,
+  [data-testid="stWidgetLabel"] span { color: #1E293B !important; }
+
+  /* Selectbox selected value & dropdown */
+  .stSelectbox [data-baseweb="select"] div,
+  .stSelectbox [data-baseweb="select"] span,
+  .stSelectbox [data-baseweb="select"] input { color: #1E293B !important; }
+  [data-baseweb="popover"] li,
+  [data-baseweb="menu"] li,
+  [data-baseweb="option"] { color: #1E293B !important; background: white !important; }
+  [data-baseweb="option"]:hover { background: #F0FDFA !important; }
+
+  /* Text inputs */
+  .stTextInput input,
+  .stTextArea textarea,
+  .stNumberInput input { color: #1E293B !important; }
+
+  /* General catch-all for main content area */
+  .main p, .main li, .main span,
+  [data-testid="stMarkdownContainer"] p,
+  [data-testid="stMarkdownContainer"] span,
+  [data-testid="stMarkdownContainer"] li { color: #1E293B !important; }
 
   /* ── Progress bar ── */
   .stProgress > div > div > div > div {
@@ -69,68 +97,116 @@ st.markdown("""
   section[data-testid="stSidebar"] .stTextInput > div > div > input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: white; }
 
   /* ════════════════════════════════════════
-     HERO BANNER
+     HOME PAGE — two-panel layout
   ════════════════════════════════════════ */
-  .hero {
-    background: linear-gradient(135deg, #09162A 0%, #1B2A4A 45%, #023042 100%);
-    border-radius: 22px;
-    padding: 48px 52px;
-    margin-bottom: 28px;
+  .home-left {
+    background: linear-gradient(155deg, #0A1628 0%, #162039 40%, #0C2A34 100%);
+    border-radius: 20px;
+    padding: 52px 44px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(9,22,42,0.25);
+    min-height: 540px;
+    box-shadow: 0 24px 64px rgba(9,22,42,0.28);
   }
-  .hero::before {
+  .home-left::before {
     content: '';
-    position: absolute;
-    top: -80px; right: -80px;
-    width: 340px; height: 340px;
-    background: radial-gradient(circle, rgba(2,128,144,0.22) 0%, transparent 68%);
+    position: absolute; top: -100px; right: -100px;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(2,128,144,0.18) 0%, transparent 65%);
     border-radius: 50%;
+    pointer-events: none;
   }
-  .hero::after {
+  .home-left::after {
     content: '';
-    position: absolute;
-    bottom: -40px; left: 30%;
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(14,165,233,0.1) 0%, transparent 70%);
+    position: absolute; bottom: -60px; left: -40px;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 65%);
     border-radius: 50%;
+    pointer-events: none;
   }
-  .hero-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(2,128,144,0.2);
-    border: 1px solid rgba(2,128,144,0.45);
-    color: #67E8F9 !important;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 1.8px;
-    text-transform: uppercase;
-    padding: 5px 14px;
-    border-radius: 99px;
-    margin-bottom: 18px;
+  .hl-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
+    text-transform: uppercase; color: #028090 !important;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
   }
-  .hero h1 { color: white !important; font-size: 2.3em; font-weight: 900; margin: 0 0 12px; line-height: 1.15; }
-  .hero p  { color: #94A3B8 !important; font-size: 1em; margin: 0; line-height: 1.7; }
+  .hl-eyebrow::before {
+    content: ''; display: inline-block;
+    width: 20px; height: 2px; background: #028090; border-radius: 2px;
+  }
+  .hl-title {
+    font-size: 2.4em; font-weight: 900; line-height: 1.15;
+    color: white !important; margin: 0 0 14px;
+    letter-spacing: -0.5px;
+  }
+  .hl-title span { color: #67E8F9 !important; }
+  .hl-sub {
+    font-size: 0.92em; color: #6B849A !important;
+    line-height: 1.7; margin-bottom: 36px;
+  }
+  .hl-divider {
+    border: none; border-top: 1px solid rgba(255,255,255,0.07);
+    margin: 0 0 28px;
+  }
+  .hl-level {
+    display: flex; align-items: flex-start; gap: 16px;
+    margin-bottom: 20px;
+  }
+  .hl-level-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1em; flex-shrink: 0;
+  }
+  .hl-level-body {}
+  .hl-level-name {
+    font-size: 0.9em; font-weight: 700; color: white !important; margin-bottom: 2px;
+  }
+  .hl-level-desc {
+    font-size: 0.78em; color: #4B6380 !important; line-height: 1.5;
+  }
+  .hl-level-cnt {
+    font-size: 0.72em; font-weight: 600; margin-top: 4px;
+    padding: 2px 8px; border-radius: 99px; display: inline-block;
+  }
+  .hl-footer {
+    position: absolute; bottom: 28px; left: 44px; right: 44px;
+    font-size: 0.75em; color: #2E4258 !important;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .hl-footer::before {
+    content: ''; display: inline-block;
+    width: 6px; height: 6px; border-radius: 50%; background: #028090;
+  }
 
-  /* ════════════════════════════════════════
-     LEVEL CARDS
-  ════════════════════════════════════════ */
-  .level-card {
+  /* Right panel */
+  .home-right {
     background: white;
-    border-radius: 16px;
-    padding: 26px 20px;
-    text-align: center;
-    border: 1.5px solid #E2E8F0;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-radius: 20px;
+    padding: 44px 40px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    min-height: 540px;
+    display: flex; flex-direction: column; justify-content: center;
   }
-  .level-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(2,128,144,0.14); border-color: #028090; }
-  .level-card .icon { font-size: 2.4em; margin-bottom: 12px; display: block; }
-  .level-card h3 { color: #0F172A !important; font-size: 1.05em; font-weight: 800; margin: 0 0 8px; }
-  .level-card p  { color: #64748B !important; font-size: 0.8em; margin: 0 0 14px; line-height: 1.55; }
-  .level-card .pill { display: inline-block; background: #EEF2FF; color: #4338CA; font-size: 0.73em; font-weight: 700; padding: 4px 12px; border-radius: 99px; border: 1px solid #C7D2FE; }
+  .hr-title {
+    font-size: 1.15em; font-weight: 800; color: #0F172A !important;
+    margin: 0 0 6px;
+  }
+  .hr-sub {
+    font-size: 0.82em; color: #94A3B8 !important;
+    margin: 0 0 28px; line-height: 1.5;
+  }
+  .hr-divider {
+    border: none; border-top: 1px solid #F1F5F9; margin: 20px 0;
+  }
+  .hr-feature {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.82em; color: #475569 !important;
+    margin-bottom: 10px;
+  }
+  .hr-feature-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #028090; flex-shrink: 0;
+  }
 
   /* ════════════════════════════════════════
      INFO / NOTICE BOX
@@ -1192,83 +1268,96 @@ with st.sidebar:
 # ── Home Page ──────────────────────────────────────────────────────────────────
 if st.session_state.page == "home":
 
-    # Hero
-    st.markdown("""
-<div class="hero">
-  <div class="hero-tag">🧠 Enhans Learning Platform</div>
-  <h1>기술 학습 퀴즈</h1>
-  <p>AgentOS · 온톨로지 · AI Agent 플랫폼의 핵심 개념을 퀴즈로 마스터하세요.<br>
-  초급부터 고급까지, Claude AI가 주관식 답변을 채점하고 맞춤 피드백을 제공합니다.</p>
+    col_left, col_right = st.columns([5, 4], gap="large")
+
+    # ── Left: brand + level info panel ────────────────────────────────────────
+    with col_left:
+        st.markdown("""
+<div class="home-left">
+  <div class="hl-eyebrow">Enhans Learning Platform</div>
+
+  <div class="hl-title">
+    AgentOS를<br><span>얼마나 이해하고</span><br>있나요?
+  </div>
+  <div class="hl-sub">
+    온톨로지 · AI Agent · 실행 시스템의 핵심 개념을<br>
+    퀴즈로 검증하고 Claude AI의 맞춤 피드백을 받으세요.
+  </div>
+
+  <hr class="hl-divider">
+
+  <div class="hl-level">
+    <div class="hl-level-icon" style="background:rgba(34,197,94,0.15);">🌱</div>
+    <div class="hl-level-body">
+      <div class="hl-level-name">초급 — 핵심 기본 개념</div>
+      <div class="hl-level-desc">Object · Link · AgentOS 5대 제품 · RAG 비교</div>
+      <span class="hl-level-cnt" style="background:rgba(34,197,94,0.12);color:#4ADE80;">15 객관식 + 5 주관식</span>
+    </div>
+  </div>
+
+  <div class="hl-level">
+    <div class="hl-level-icon" style="background:rgba(251,191,36,0.15);">⚡</div>
+    <div class="hl-level-body">
+      <div class="hl-level-name">중급 — 심화 이해 · 적용</div>
+      <div class="hl-level-desc">데이터 분류 · 거버넌스 · 경쟁 기술 심층 비교</div>
+      <span class="hl-level-cnt" style="background:rgba(251,191,36,0.12);color:#FCD34D;">12 객관식 + 8 주관식</span>
+    </div>
+  </div>
+
+  <div class="hl-level">
+    <div class="hl-level-icon" style="background:rgba(239,68,68,0.15);">🚀</div>
+    <div class="hl-level-body">
+      <div class="hl-level-name">고급 — 실전 설계 · 응용</div>
+      <div class="hl-level-desc">아키텍처 설계 · 멀티 Agent · 영업 전략 적용</div>
+      <span class="hl-level-cnt" style="background:rgba(239,68,68,0.12);color:#F87171;">10 객관식 + 10 주관식</span>
+    </div>
+  </div>
+
+  <div class="hl-footer">Claude AI가 주관식 답변을 채점하고 맞춤 피드백을 제공합니다</div>
 </div>
 """, unsafe_allow_html=True)
 
-    # Level cards
-    col1, col2, col3 = st.columns(3, gap="medium")
-    with col1:
+    # ── Right: form panel ──────────────────────────────────────────────────────
+    with col_right:
         st.markdown("""
-<div class="level-card">
-  <div class="icon">🌱</div>
-  <h3>초급</h3>
-  <p>Object · Link · AgentOS 5대 제품<br>RAG 비교 등 핵심 기본 개념</p>
-  <span class="pill">15 객관식 + 5 주관식</span>
-</div>""", unsafe_allow_html=True)
-    with col2:
-        st.markdown("""
-<div class="level-card" style="border-color:#F59E0B;">
-  <div class="icon">⚡</div>
-  <h3>중급</h3>
-  <p>데이터 분류 기준 · 거버넌스<br>경쟁 기술 심층 비교</p>
-  <span class="pill" style="background:#FFFBEB;color:#B45309;border:1px solid #FDE68A">12 객관식 + 8 주관식</span>
-</div>""", unsafe_allow_html=True)
-    with col3:
-        st.markdown("""
-<div class="level-card" style="border-color:#EF4444;">
-  <div class="icon">🚀</div>
-  <h3>고급</h3>
-  <p>아키텍처 설계 · 멀티 Agent<br>실전 영업·전략 적용</p>
-  <span class="pill" style="background:#FFF1F2;color:#BE123C;border:1px solid #FECDD3">10 객관식 + 10 주관식</span>
-</div>""", unsafe_allow_html=True)
-
-    st.markdown("<div style='margin:28px 0'></div>", unsafe_allow_html=True)
-
-    # Start form
-    col_a, col_b, col_c = st.columns([1, 2, 1])
-    with col_b:
-        st.markdown("""
-<div style="background:white;border-radius:16px;padding:28px 32px;border:1px solid #E2E8F0;box-shadow:0 2px 12px rgba(0,0,0,0.05)">
-<p style="font-size:0.95em;font-weight:700;color:#1E293B;margin:0 0 16px">퀴즈 시작하기</p>
+<div class="home-right">
+  <div class="hr-title">퀴즈 시작하기</div>
+  <div class="hr-sub">레벨을 선택하고 API 키를 입력하면<br>바로 시작할 수 있습니다.</div>
 </div>
 """, unsafe_allow_html=True)
-        with st.container():
-            level_sel = st.selectbox("📚 레벨 선택", ["초급", "중급", "고급"], key="home_level")
-            api_key_inp = st.text_input(
-                "🔑 Claude API Key",
-                type="password",
-                placeholder="sk-ant-api03-...",
-                help="주관식 채점에 사용됩니다. console.anthropic.com에서 발급",
-                key="home_api"
-            )
-            st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
-            if st.button("퀴즈 시작 →", type="primary", use_container_width=True):
-                if not api_key_inp.strip():
-                    st.warning("⚠️ 주관식 채점을 위해 Claude API Key를 입력해주세요.")
-                else:
-                    st.session_state.level = level_sel
-                    st.session_state.api_key = api_key_inp
-                    st.session_state.questions = QUIZ_DATA[level_sel].copy()
-                    st.session_state.current_q = 0
-                    st.session_state.answers = {}
-                    st.session_state.results = {}
-                    st.session_state.page = "quiz"
-                    st.rerun()
 
-    st.markdown("""
-<div class="info-box" style="margin-top:24px">
-  <strong>💡 퀴즈 안내</strong><br>
-  객관식 문제는 제출 시 즉시 정답을 확인합니다. 주관식 문제는 Claude AI가 답변을 분석해
-  점수, 잘된 부분, 보완할 내용, 핵심 인사이트를 제공합니다.
-  문제는 인핸스 실제 기술 자료를 기반으로 출제되며, 결과 페이지에서 문제별 해설을 확인할 수 있습니다.
-</div>
+        level_sel = st.selectbox(
+            "학습 레벨",
+            ["초급", "중급", "고급"],
+            key="home_level",
+            help="초급: 기본 개념 | 중급: 심화 | 고급: 실전"
+        )
+        api_key_inp = st.text_input(
+            "Claude API Key",
+            type="password",
+            placeholder="sk-ant-api03-...",
+            help="주관식 채점에 사용됩니다. console.anthropic.com에서 발급",
+            key="home_api"
+        )
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+        if st.button("시작하기  →", type="primary", use_container_width=True):
+            if not api_key_inp.strip():
+                st.warning("⚠️ 주관식 채점을 위해 Claude API Key를 입력해주세요.")
+            else:
+                st.session_state.level = level_sel
+                st.session_state.api_key = api_key_inp
+                st.session_state.questions = QUIZ_DATA[level_sel].copy()
+                st.session_state.current_q = 0
+                st.session_state.answers = {}
+                st.session_state.results = {}
+                st.session_state.page = "quiz"
+                st.rerun()
+
+        st.markdown("""
+<hr class="hr-divider">
+<div class="hr-feature"><span class="hr-feature-dot"></span>객관식: 제출 즉시 정답 확인</div>
+<div class="hr-feature"><span class="hr-feature-dot"></span>주관식: Claude AI 채점 + 상세 피드백</div>
+<div class="hr-feature"><span class="hr-feature-dot"></span>결과 페이지에서 문제별 해설 제공</div>
 """, unsafe_allow_html=True)
 
 
