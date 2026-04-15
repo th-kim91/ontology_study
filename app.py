@@ -62,11 +62,14 @@ st.markdown("""
   }
 
   /* ════════════════════════════════════════
-     SIDEBAR
+     SIDEBAR — wider
   ════════════════════════════════════════ */
   section[data-testid="stSidebar"] {
     background: linear-gradient(175deg, #09162A 0%, #1B2A4A 60%, #022A33 100%);
     border-right: 1px solid rgba(255,255,255,0.05);
+    min-width: 260px !important;
+    max-width: 300px !important;
+    width: 270px !important;
   }
   section[data-testid="stSidebar"] > div { padding-top: 1.5rem; }
   section[data-testid="stSidebar"] h1,
@@ -102,10 +105,9 @@ st.markdown("""
   .home-left {
     background: linear-gradient(155deg, #0A1628 0%, #162039 40%, #0C2A34 100%);
     border-radius: 20px;
-    padding: 52px 44px;
+    padding: 48px 44px 44px;
     position: relative;
     overflow: hidden;
-    min-height: 540px;
     box-shadow: 0 24px 64px rgba(9,22,42,0.28);
   }
   .home-left::before {
@@ -140,71 +142,77 @@ st.markdown("""
   }
   .hl-title span { color: #67E8F9 !important; }
   .hl-sub {
-    font-size: 0.92em; color: #6B849A !important;
-    line-height: 1.7; margin-bottom: 36px;
+    font-size: 0.9em; color: #7B96AA !important;
+    line-height: 1.7; margin-bottom: 32px;
   }
   .hl-divider {
     border: none; border-top: 1px solid rgba(255,255,255,0.07);
-    margin: 0 0 28px;
+    margin: 0 0 24px;
   }
+  /* Level rows — no icon, left accent bar */
   .hl-level {
-    display: flex; align-items: flex-start; gap: 16px;
-    margin-bottom: 20px;
+    display: flex; align-items: flex-start; gap: 0;
+    margin-bottom: 18px;
+    padding-left: 14px;
+    border-left: 2px solid rgba(255,255,255,0.1);
   }
-  .hl-level-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1em; flex-shrink: 0;
-  }
-  .hl-level-body {}
+  .hl-level-body { flex: 1; }
   .hl-level-name {
-    font-size: 0.9em; font-weight: 700; color: white !important; margin-bottom: 2px;
+    font-size: 0.88em; font-weight: 700;
+    color: #E2E8F0 !important; margin-bottom: 3px;
   }
   .hl-level-desc {
-    font-size: 0.78em; color: #4B6380 !important; line-height: 1.5;
+    font-size: 0.78em; color: #7B96AA !important; line-height: 1.5;
+    margin-bottom: 5px;
   }
   .hl-level-cnt {
-    font-size: 0.72em; font-weight: 600; margin-top: 4px;
+    font-size: 0.72em; font-weight: 600;
     padding: 2px 8px; border-radius: 99px; display: inline-block;
   }
   .hl-footer {
-    position: absolute; bottom: 28px; left: 44px; right: 44px;
-    font-size: 0.75em; color: #2E4258 !important;
+    margin-top: 28px;
+    font-size: 0.75em; color: #3A5468 !important;
     display: flex; align-items: center; gap: 8px;
   }
   .hl-footer::before {
     content: ''; display: inline-block;
-    width: 6px; height: 6px; border-radius: 50%; background: #028090;
+    width: 6px; height: 6px; border-radius: 50%; background: #028090; flex-shrink: 0;
   }
 
-  /* Right panel */
-  .home-right {
+  /* Right panel — white card, compact form */
+  .home-right-header {
+    padding: 36px 36px 0;
     background: white;
-    border-radius: 20px;
-    padding: 44px 40px;
+    border-radius: 20px 20px 0 0;
     border: 1px solid #E2E8F0;
+    border-bottom: none;
+  }
+  .home-right-form {
+    padding: 20px 36px 28px;
+    background: white;
+    border-radius: 0 0 20px 20px;
+    border: 1px solid #E2E8F0;
+    border-top: none;
     box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    min-height: 540px;
-    display: flex; flex-direction: column; justify-content: center;
   }
   .hr-title {
-    font-size: 1.15em; font-weight: 800; color: #0F172A !important;
-    margin: 0 0 6px;
+    font-size: 1.1em; font-weight: 800; color: #0F172A !important;
+    margin: 0 0 5px;
   }
   .hr-sub {
-    font-size: 0.82em; color: #94A3B8 !important;
-    margin: 0 0 28px; line-height: 1.5;
+    font-size: 0.81em; color: #94A3B8 !important;
+    margin: 0 0 22px; line-height: 1.5;
   }
   .hr-divider {
-    border: none; border-top: 1px solid #F1F5F9; margin: 20px 0;
+    border: none; border-top: 1px solid #F1F5F9; margin: 18px 0 14px;
   }
   .hr-feature {
     display: flex; align-items: center; gap: 10px;
-    font-size: 0.82em; color: #475569 !important;
-    margin-bottom: 10px;
+    font-size: 0.8em; color: #64748B !important;
+    margin-bottom: 8px;
   }
   .hr-feature-dot {
-    width: 6px; height: 6px; border-radius: 50%;
+    width: 5px; height: 5px; border-radius: 50%;
     background: #028090; flex-shrink: 0;
   }
 
@@ -1286,30 +1294,27 @@ if st.session_state.page == "home":
 
   <hr class="hl-divider">
 
-  <div class="hl-level">
-    <div class="hl-level-icon" style="background:rgba(34,197,94,0.15);">🌱</div>
+  <div class="hl-level" style="border-left-color:rgba(74,222,128,0.4);">
     <div class="hl-level-body">
       <div class="hl-level-name">초급 — 핵심 기본 개념</div>
       <div class="hl-level-desc">Object · Link · AgentOS 5대 제품 · RAG 비교</div>
-      <span class="hl-level-cnt" style="background:rgba(34,197,94,0.12);color:#4ADE80;">15 객관식 + 5 주관식</span>
+      <span class="hl-level-cnt" style="background:rgba(34,197,94,0.15);color:#4ADE80;">15 객관식 + 5 주관식</span>
     </div>
   </div>
 
-  <div class="hl-level">
-    <div class="hl-level-icon" style="background:rgba(251,191,36,0.15);">⚡</div>
+  <div class="hl-level" style="border-left-color:rgba(252,211,77,0.4);">
     <div class="hl-level-body">
       <div class="hl-level-name">중급 — 심화 이해 · 적용</div>
       <div class="hl-level-desc">데이터 분류 · 거버넌스 · 경쟁 기술 심층 비교</div>
-      <span class="hl-level-cnt" style="background:rgba(251,191,36,0.12);color:#FCD34D;">12 객관식 + 8 주관식</span>
+      <span class="hl-level-cnt" style="background:rgba(251,191,36,0.15);color:#FCD34D;">12 객관식 + 8 주관식</span>
     </div>
   </div>
 
-  <div class="hl-level">
-    <div class="hl-level-icon" style="background:rgba(239,68,68,0.15);">🚀</div>
+  <div class="hl-level" style="border-left-color:rgba(248,113,113,0.4);">
     <div class="hl-level-body">
       <div class="hl-level-name">고급 — 실전 설계 · 응용</div>
       <div class="hl-level-desc">아키텍처 설계 · 멀티 Agent · 영업 전략 적용</div>
-      <span class="hl-level-cnt" style="background:rgba(239,68,68,0.12);color:#F87171;">10 객관식 + 10 주관식</span>
+      <span class="hl-level-cnt" style="background:rgba(239,68,68,0.15);color:#F87171;">10 객관식 + 10 주관식</span>
     </div>
   </div>
 
@@ -1317,15 +1322,18 @@ if st.session_state.page == "home":
 </div>
 """, unsafe_allow_html=True)
 
-    # ── Right: form panel ──────────────────────────────────────────────────────
+    # ── Right: form panel — header HTML + Streamlit widgets as one block ───────
     with col_right:
+        # White card top (title + sub)
         st.markdown("""
-<div class="home-right">
+<div class="home-right-header">
   <div class="hr-title">퀴즈 시작하기</div>
-  <div class="hr-sub">레벨을 선택하고 API 키를 입력하면<br>바로 시작할 수 있습니다.</div>
+  <div class="hr-sub">레벨을 선택하고 API 키를 입력하면 바로 시작할 수 있습니다.</div>
 </div>
 """, unsafe_allow_html=True)
 
+        # White card bottom (form inputs)
+        st.markdown('<div class="home-right-form">', unsafe_allow_html=True)
         level_sel = st.selectbox(
             "학습 레벨",
             ["초급", "중급", "고급"],
@@ -1339,7 +1347,7 @@ if st.session_state.page == "home":
             help="주관식 채점에 사용됩니다. console.anthropic.com에서 발급",
             key="home_api"
         )
-        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
         if st.button("시작하기  →", type="primary", use_container_width=True):
             if not api_key_inp.strip():
                 st.warning("⚠️ 주관식 채점을 위해 Claude API Key를 입력해주세요.")
@@ -1358,6 +1366,7 @@ if st.session_state.page == "home":
 <div class="hr-feature"><span class="hr-feature-dot"></span>객관식: 제출 즉시 정답 확인</div>
 <div class="hr-feature"><span class="hr-feature-dot"></span>주관식: Claude AI 채점 + 상세 피드백</div>
 <div class="hr-feature"><span class="hr-feature-dot"></span>결과 페이지에서 문제별 해설 제공</div>
+</div>
 """, unsafe_allow_html=True)
 
 
