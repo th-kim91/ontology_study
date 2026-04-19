@@ -1047,8 +1047,11 @@ def show_home():
     sel_level = st.session_state.home_level_radio
     info = level_info[sel_level]
 
-    # Build topics HTML
-    topics_html = "".join([f'<li style="margin-bottom:6px;">{t}</li>' for t in info["topics"]])
+    # Build topics HTML — use div/span (not li/p) to avoid CSS !important override on dark bg
+    topics_html = "".join([
+        f'<div style="color: rgba(255,255,255,0.8); font-size: 0.88rem; line-height: 1.8; margin-bottom: 2px;">• {t}</div>'
+        for t in info["topics"]
+    ])
 
     left_html = f"""
 <div class="home-left">
@@ -1056,17 +1059,17 @@ def show_home():
     <span style="background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; font-weight: 700;
                  letter-spacing: 2px; padding: 4px 12px; border-radius: 20px;">{info['badge']}</span>
   </div>
-  <h1 style="color: #fff; font-size: 2rem; font-weight: 800; margin-bottom: 8px;">{info['title']}</h1>
-  <p style="color: rgba(255,255,255,0.85); font-size: 1rem; margin-bottom: 24px;">{info['subtitle']}</p>
-  <p style="color: rgba(255,255,255,0.75); font-size: 0.9rem; margin-bottom: 28px; line-height: 1.6;">{info['desc']}</p>
+  <div style="color: #fff; font-size: 2rem; font-weight: 800; margin-bottom: 8px; line-height: 1.2;">{info['title']}</div>
+  <div style="color: rgba(255,255,255,0.85); font-size: 1rem; margin-bottom: 24px;">{info['subtitle']}</div>
+  <div style="color: rgba(255,255,255,0.75); font-size: 0.9rem; margin-bottom: 28px; line-height: 1.6;">{info['desc']}</div>
   <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-    <p style="color: rgba(255,255,255,0.9); font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px;">📚 포함 파트</p>
-    <ul style="color: rgba(255,255,255,0.8); font-size: 0.88rem; line-height: 1.8; padding-left: 20px; margin: 0;">
+    <div style="color: rgba(255,255,255,0.9); font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px;">📚 포함 파트</div>
+    <div style="padding-left: 4px;">
       {topics_html}
-    </ul>
+    </div>
   </div>
   <div style="background: rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 16px;">
-    <p style="color: rgba(255,255,255,0.7); font-size: 0.82rem; margin: 0;">📝 {info['total_q']}</p>
+    <div style="color: rgba(255,255,255,0.7); font-size: 0.82rem;">📝 {info['total_q']}</div>
   </div>
 </div>
 """
@@ -1077,7 +1080,7 @@ def show_home():
         st.markdown(left_html, unsafe_allow_html=True)
 
     with col_right:
-        st.markdown('<div class="home-right-header"><h2>퀴즈 시작</h2><p>레벨과 파트를 선택하고 시작하세요</p></div>', unsafe_allow_html=True)
+        st.markdown('<div class="home-right-header"><div style="font-size:1.1em; font-weight:800; color:#0F172A; margin:0 0 5px;">퀴즈 시작</div><div style="font-size:0.81em; color:#94A3B8; margin:0 0 22px; line-height:1.5;">레벨과 파트를 선택하고 시작하세요</div></div>', unsafe_allow_html=True)
 
         st.markdown('<div class="home-right-form">', unsafe_allow_html=True)
 
@@ -1152,7 +1155,7 @@ def show_quiz():
             display: flex; justify-content: space-between; align-items: center;">
   <div>
     <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem; font-weight: 600; letter-spacing: 1px;">{level} · {sub_test}</span>
-    <h2 style="color: #fff; margin: 4px 0 0 0; font-size: 1.1rem; font-weight: 700;">문제 {idx + 1} / {total}</h2>
+    <div style="color: #fff; margin: 4px 0 0 0; font-size: 1.1rem; font-weight: 700;">문제 {idx + 1} / {total}</div>
   </div>
   <div style="background: rgba(255,255,255,0.15); border-radius: 50px; padding: 6px 16px;">
     <span style="color: #fff; font-size: 0.85rem; font-weight: 600;">
@@ -1301,9 +1304,9 @@ def show_results():
   <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 8px;">
     {level} · {sub_test}
   </div>
-  <h1 style="color: #fff; font-size: 3.5rem; font-weight: 900; margin: 0 0 8px 0;">
+  <div style="color: #fff; font-size: 3.5rem; font-weight: 900; margin: 0 0 8px 0; line-height: 1;">
     {total_score}<span style="font-size: 1.5rem; opacity: 0.7;">/{total_max}</span>
-  </h1>
+  </div>
   <div style="background: {grade_color}; color: #fff; display: inline-block;
               padding: 6px 24px; border-radius: 50px; font-weight: 700; font-size: 1rem; margin-bottom: 20px;">
     {grade_text} · {pct}%
