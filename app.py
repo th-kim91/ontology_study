@@ -45,11 +45,7 @@ st.markdown("""
     min-width: 260px !important; max-width: 300px !important; width: 270px !important;
   }
   section[data-testid="stSidebar"] > div { padding-top: 1.5rem; }
-  section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
-  section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] p,
-  section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] .stMarkdown,
-  section[data-testid="stSidebar"] .stMarkdown p,
-  section[data-testid="stSidebar"] span { color: #CBD5E1 !important; }
+  section[data-testid="stSidebar"] * { color: #CBD5E1 !important; }
   section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.15); }
   section[data-testid="stSidebar"] .stButton > button {
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
