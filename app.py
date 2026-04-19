@@ -49,11 +49,11 @@ st.markdown("""
   section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] p,
   section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] .stMarkdown,
   section[data-testid="stSidebar"] .stMarkdown p,
-  section[data-testid="stSidebar"] span { color: #94A3B8 !important; }
-  section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.08); }
+  section[data-testid="stSidebar"] span { color: #CBD5E1 !important; }
+  section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.15); }
   section[data-testid="stSidebar"] .stButton > button {
     background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
-    color: #94A3B8 !important; border-radius: 8px; font-size: 0.8em;
+    color: #CBD5E1 !important; border-radius: 8px; font-size: 0.8em;
     text-align: left; padding: 7px 10px; transition: all 0.15s;
   }
   section[data-testid="stSidebar"] .stButton > button:hover {
@@ -128,6 +128,7 @@ st.markdown("""
   .stTextArea textarea { border-radius: 11px; border: 1.5px solid #E2E8F0; font-size: 0.95em; color: #1E293B !important; background: #FAFAFA; padding: 12px 16px; transition: border-color 0.15s, box-shadow 0.15s; }
   .stTextArea textarea:focus { border-color: #028090; box-shadow: 0 0 0 3px rgba(2,128,144,0.1); }
   .stButton > button { border-radius: 9px; font-weight: 600; font-size: 0.9em; transition: all 0.15s; background: #334155 !important; color: white !important; border: 1px solid #475569 !important; }
+  .stButton > button p, .stButton > button span, .stButton > button div { color: white !important; }
   .stButton > button:hover { background: #1E293B !important; border-color: #64748B !important; }
   .stButton > button[kind="primary"] { background: linear-gradient(135deg, #028090, #0369A1) !important; border: none !important; color: white !important; box-shadow: 0 2px 8px rgba(2,128,144,0.25); }
   .stButton > button[kind="primary"]:hover { background: linear-gradient(135deg, #026070, #025A8A) !important; box-shadow: 0 6px 18px rgba(2,128,144,0.35); transform: translateY(-1px); }
@@ -1044,7 +1045,8 @@ def show_home():
         },
     }
 
-    sel_level = st.session_state.home_level_radio
+    # 위젯 키에서 직접 읽어야 라디오 선택 즉시 왼쪽 패널이 반영됨
+    sel_level = st.session_state.get("home_level_radio_widget", st.session_state.home_level_radio)
     info = level_info[sel_level]
 
     # Build topics HTML — use div/span (not li/p) to avoid CSS !important override on dark bg
