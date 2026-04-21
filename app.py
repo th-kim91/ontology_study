@@ -1293,11 +1293,22 @@ def show_quiz():
             key=f"mc_{q['id']}",
         )
 
-        col1, col2 = st.columns([1, 1])
-        with col2:
+        nav_col1, nav_col2, nav_col3 = st.columns([1, 1, 1])
+        with nav_col1:
+            if idx > 0:
+                if st.button("← 이전", use_container_width=True, key=f"prev_{q['id']}"):
+                    st.session_state.current_q -= 1
+                    if st.session_state.results:
+                        st.session_state.results.pop()
+                    st.rerun()
+        with nav_col2:
+            if len(st.session_state.results) > 0:
+                if st.button("완료하기", use_container_width=True, key=f"finish_{q['id']}"):
+                    st.session_state.page = "results"
+                    st.rerun()
+        with nav_col3:
             if st.button("다음 →", use_container_width=True, key=f"next_{q['id']}"):
                 if selected:
-                    # Extract letter (A/B/C/D)
                     answer_letter = selected[0] if selected else ""
                     st.session_state.answers[q["id"]] = answer_letter
                     correct = q["answer"]
@@ -1332,8 +1343,20 @@ def show_quiz():
 
         answer_key = q.get("answer_key", q.get("answer", ""))
 
-        col1, col2 = st.columns([1, 1])
-        with col2:
+        nav_col1, nav_col2, nav_col3 = st.columns([1, 1, 1])
+        with nav_col1:
+            if idx > 0:
+                if st.button("← 이전", use_container_width=True, key=f"prev_{q['id']}"):
+                    st.session_state.current_q -= 1
+                    if st.session_state.results:
+                        st.session_state.results.pop()
+                    st.rerun()
+        with nav_col2:
+            if len(st.session_state.results) > 0:
+                if st.button("완료하기", use_container_width=True, key=f"finish_{q['id']}"):
+                    st.session_state.page = "results"
+                    st.rerun()
+        with nav_col3:
             if st.button("제출 & 다음 →", use_container_width=True, key=f"submit_{q['id']}"):
                 st.session_state.answers[q["id"]] = user_answer
                 with st.spinner("AI가 답변을 평가 중입니다..."):
@@ -1375,6 +1398,8 @@ def show_results():
     mc_results = [r for r in results if r["type"] == "mc"]
     subj_results = [r for r in results if r["type"] == "subjective"]
     mc_correct = sum(1 for r in mc_results if r.get("is_correct", False))
+    answered_count = len(results)
+    total_count = len(st.session_state.questions)
 
     pct = int((total_score / total_max * 100)) if total_max > 0 else 0
 
@@ -1402,6 +1427,10 @@ def show_results():
     {grade_text} · {pct}%
   </div>
   <div style="display: flex; justify-content: center; gap: 32px; margin-top: 8px;">
+    <div style="color: rgba(255,255,255,0.8);">
+      <div style="font-size: 1.5rem; font-weight: 800;">{answered_count}/{total_count}</div>
+      <div style="font-size: 0.78rem; opacity: 0.6; margin-top: 2px;">완료 문제</div>
+    </div>
     <div style="color: rgba(255,255,255,0.8);">
       <div style="font-size: 1.5rem; font-weight: 800;">{mc_correct}/{len(mc_results)}</div>
       <div style="font-size: 0.78rem; opacity: 0.6; margin-top: 2px;">객관식 정답</div>
