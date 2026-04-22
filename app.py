@@ -2,174 +2,196 @@ import streamlit as st
 import anthropic
 import json
 import time
+import pandas as pd
+try:
+    from sheets_db import save_quiz_result, get_all_results, sheets_configured, verify_user, update_password
+except ImportError:
+    def save_quiz_result(*a, **kw): return False
+    def get_all_results(): return None, None
+    def sheets_configured(): return False
+    def verify_user(*a, **kw): return False
+    def update_password(*a, **kw): return False
+
+USERS = ["정석연","장혁진","이재림","주경호","김종휘","정호찬","변영건","최재은","이현주","안현진","정윤상","김도균","김태훈"]
+ADMIN_NAME = "김태훈"
 
 st.set_page_config(
-    page_title="Enhans 기술 학습 퀴즈",
-    page_icon="🧠",
+    page_title="Enhans · AgentOS Learning",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
   html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-  .stApp { background: #EEF0F4; }
+  .stApp { background: #F5F6F8; }
   .main .block-container { padding-top: 2rem; max-width: 960px; }
+
+  /* ── 기본 텍스트 ── */
   .stMarkdown, .stMarkdown p, .stMarkdown li,
   .stMarkdown h1, .stMarkdown h2, .stMarkdown h3,
   .stMarkdown strong, .stMarkdown em { color: #1E293B !important; }
-  .stSelectbox label, .stTextInput label, .stTextArea label, .stRadio label,
-  .stCheckbox label, .stNumberInput label,
-  [data-testid="stWidgetLabel"], [data-testid="stWidgetLabel"] p,
-  [data-testid="stWidgetLabel"] span { color: #1E293B !important; }
-  .stSelectbox [data-baseweb="select"] div,
-  .stSelectbox [data-baseweb="select"] span,
-  .stSelectbox [data-baseweb="select"] input { color: white !important; }
-  .stSelectbox [data-baseweb="select"] > div { background: #1E293B !important; border-color: #334155 !important; }
-  [data-baseweb="popover"] li, [data-baseweb="menu"] li,
-  [data-baseweb="option"] { color: #1E293B !important; background: white !important; }
-  [data-baseweb="option"]:hover { background: #F0FDFA !important; }
-  .stTextInput input, .stTextArea textarea, .stNumberInput input { color: #1E293B !important; }
   .main p, .main li, .main span,
   [data-testid="stMarkdownContainer"] p,
   [data-testid="stMarkdownContainer"] span,
   [data-testid="stMarkdownContainer"] li { color: #1E293B !important; }
-  .stProgress > div > div > div > div {
-    background: linear-gradient(90deg, #028090, #0EA5E9) !important;
-    border-radius: 99px;
+
+  /* ── 위젯 라벨 ── */
+  [data-testid="stWidgetLabel"], [data-testid="stWidgetLabel"] p,
+  [data-testid="stWidgetLabel"] span,
+  .stTextInput label, .stTextInput label p,
+  .stTextArea label, .stTextArea label p,
+  .stSelectbox label, .stSelectbox label p,
+  .stRadio label, .stRadio label p,
+  .stCheckbox label, .stCheckbox label p,
+  div[data-baseweb="form-control"] > label,
+  div[data-baseweb="form-control"] > label p {
+    color: #475569 !important; font-size: 0.78rem !important;
+    font-weight: 600 !important; letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
   }
+
+  /* ── 셀렉트박스 ── */
+  .stSelectbox [data-baseweb="select"] div,
+  .stSelectbox [data-baseweb="select"] span,
+  .stSelectbox [data-baseweb="select"] input { color: #1E293B !important; }
+  .stSelectbox [data-baseweb="select"] > div { background: #fff !important; border-color: #CBD5E1 !important; border-radius: 6px !important; }
+  [data-baseweb="popover"] li, [data-baseweb="menu"] li,
+  [data-baseweb="option"] { color: #1E293B !important; background: white !important; }
+  [data-baseweb="option"]:hover { background: #F0FDFA !important; }
+
+  /* ── 인풋 ── */
+  .stTextInput input, .stTextArea textarea, .stNumberInput input,
+  input[type="text"], input[type="password"] {
+    color: #1E293B !important; background: #fff !important;
+    border-color: #CBD5E1 !important; border-radius: 6px !important;
+  }
+  .stTextArea textarea { font-size: 0.93em; padding: 12px 14px; transition: border-color 0.15s; }
+  .stTextArea textarea:focus { border-color: #028090 !important; box-shadow: 0 0 0 3px rgba(2,128,144,0.08) !important; }
+
+  /* ── 프로그레스 ── */
+  .stProgress > div > div > div > div {
+    background: #028090 !important; border-radius: 99px;
+  }
+
+  /* ── 사이드바 ── */
   section[data-testid="stSidebar"] {
-    background: linear-gradient(175deg, #09162A 0%, #1B2A4A 60%, #022A33 100%);
-    border-right: 1px solid rgba(255,255,255,0.05);
-    min-width: 260px !important; max-width: 300px !important; width: 270px !important;
+    background: #0A1628;
+    border-right: 1px solid rgba(255,255,255,0.04);
+    min-width: 240px !important; max-width: 280px !important; width: 260px !important;
   }
   section[data-testid="stSidebar"] > div { padding-top: 1.5rem; }
-  section[data-testid="stSidebar"] * { color: #CBD5E1 !important; }
-  section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.15); }
+  section[data-testid="stSidebar"] * { color: #8B9CB8 !important; }
+  section[data-testid="stSidebar"] strong, section[data-testid="stSidebar"] b { color: #E2E8F0 !important; }
+  section[data-testid="stSidebar"] hr { border-color: rgba(255,255,255,0.06); }
   section[data-testid="stSidebar"] .stButton > button {
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
-    color: #CBD5E1 !important; border-radius: 8px; font-size: 0.8em;
-    text-align: left; padding: 7px 10px; transition: all 0.15s;
+    background: transparent !important; border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #8B9CB8 !important; border-radius: 6px; font-size: 0.8em; padding: 7px 12px; transition: all 0.15s;
   }
   section[data-testid="stSidebar"] .stButton > button:hover {
-    background: rgba(2,128,144,0.2); border-color: rgba(2,128,144,0.5); color: #E2E8F0 !important;
+    background: rgba(2,128,144,0.12) !important; border-color: rgba(2,128,144,0.3) !important; color: #E2E8F0 !important;
   }
-  .home-left {
-    background: linear-gradient(155deg, #0A1628 0%, #162039 40%, #0C2A34 100%);
-    border-radius: 20px; padding: 48px 44px 44px;
-    position: relative; overflow: hidden;
-    box-shadow: 0 24px 64px rgba(9,22,42,0.28);
+
+  /* ── 라디오 ── */
+  div[role="radiogroup"] label, div[role="radiogroup"] label p, div[role="radiogroup"] label span,
+  div[data-baseweb="radio"] label, div[data-baseweb="radio"] label p,
+  .stRadio label, .stRadio label p, .stRadio span { color: #1E293B !important; }
+  .stRadio > div { gap: 6px; }
+  div[data-baseweb="radio"] { background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 11px 15px; transition: all 0.12s; }
+  div[data-baseweb="radio"]:hover { border-color: #028090; background: #F0FDFA; }
+  div[data-baseweb="radio"][aria-checked="true"] { background: #F0FDFA !important; border-color: #028090 !important; }
+  div[data-baseweb="radio"][aria-checked="true"] label,
+  div[data-baseweb="radio"][aria-checked="true"] label p { color: #0C4A5A !important; }
+
+  /* ── 버튼 ── */
+  .stButton > button {
+    border-radius: 6px; font-weight: 600; font-size: 0.875rem; transition: all 0.12s;
+    background: #1E293B !important; color: white !important; border: none !important;
+    padding: 8px 18px; letter-spacing: 0.2px;
   }
+  .stButton > button p, .stButton > button span, .stButton > button div { color: white !important; }
+  .stButton > button:hover { background: #0F172A !important; transform: translateY(-1px); }
+  .stButton > button[kind="primary"] {
+    background: #028090 !important; color: white !important;
+    box-shadow: 0 1px 4px rgba(2,128,144,0.25);
+  }
+  .stButton > button[kind="primary"]:hover {
+    background: #026070 !important; box-shadow: 0 4px 12px rgba(2,128,144,0.3); transform: translateY(-1px);
+  }
+
+  /* ── 홈 패널 ── */
+  .home-left { background: #0A1628; border-radius: 12px; padding: 40px 36px; position: relative; overflow: hidden; }
   .home-left::before {
-    content: ''; position: absolute; top: -100px; right: -100px;
-    width: 380px; height: 380px;
-    background: radial-gradient(circle, rgba(2,128,144,0.18) 0%, transparent 65%);
+    content: ''; position: absolute; top: -80px; right: -80px; width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(2,128,144,0.15) 0%, transparent 65%);
     border-radius: 50%; pointer-events: none;
   }
-  .home-left::after {
-    content: ''; position: absolute; bottom: -60px; left: -40px;
-    width: 260px; height: 260px;
-    background: radial-gradient(circle, rgba(14,165,233,0.08) 0%, transparent 65%);
-    border-radius: 50%; pointer-events: none;
-  }
-  .hl-eyebrow {
-    font-size: 10px; font-weight: 700; letter-spacing: 2.5px;
-    text-transform: uppercase; color: #028090 !important;
-    margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
-  }
-  .hl-eyebrow::before { content: ''; display: inline-block; width: 20px; height: 2px; background: #028090; border-radius: 2px; }
-  .hl-title { font-size: 2.4em; font-weight: 900; line-height: 1.15; color: white !important; margin: 0 0 14px; letter-spacing: -0.5px; }
-  .hl-title span { color: #67E8F9 !important; }
-  .hl-sub { font-size: 0.9em; color: #7B96AA !important; line-height: 1.7; margin-bottom: 32px; }
-  .hl-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 0 0 24px; }
-  .hl-level { display: flex; align-items: flex-start; margin-bottom: 18px; padding-left: 14px; border-left: 2px solid rgba(255,255,255,0.1); }
-  .hl-level-body { flex: 1; }
-  .hl-level-name { font-size: 0.88em; font-weight: 700; color: #E2E8F0 !important; margin-bottom: 3px; }
-  .hl-level-desc { font-size: 0.78em; color: #7B96AA !important; line-height: 1.5; margin-bottom: 5px; }
-  .hl-level-cnt { font-size: 0.73em; font-weight: 700; padding: 3px 10px; border-radius: 99px; display: inline-block; }
-  .hl-footer { margin-top: 28px; font-size: 0.75em; color: #3A5468 !important; display: flex; align-items: center; gap: 8px; }
-  .hl-footer::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #028090; flex-shrink: 0; }
-  .home-right-header { padding: 36px 36px 0; background: white; border-radius: 20px 20px 0 0; border: 1px solid #E2E8F0; border-bottom: none; margin-bottom: 0; position: relative; z-index: 2; }
-  .home-right-form { padding: 20px 36px 32px; background: white; border-radius: 0 0 20px 20px; border: 1px solid #E2E8F0; border-top: none; margin-top: -2px; position: relative; z-index: 1; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  .home-right-header { padding: 32px 32px 0; background: white; border-radius: 12px 12px 0 0; border: 1px solid #E2E8F0; border-bottom: none; }
+  .home-right-form { padding: 20px 32px 28px; background: white; border-radius: 0 0 12px 12px; border: 1px solid #E2E8F0; border-top: none; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
   [data-testid="stHorizontalBlock"] { align-items: stretch !important; }
   [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] { display: flex !important; flex-direction: column !important; }
   [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child { justify-content: stretch !important; }
   [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child > [data-testid="stVerticalBlockBorderWrapper"],
   [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child > [data-testid="stVerticalBlock"] { flex: 1 !important; display: flex !important; flex-direction: column !important; }
-  .hr-title { font-size: 1.1em; font-weight: 800; color: #0F172A !important; margin: 0 0 5px; }
-  .hr-sub { font-size: 0.81em; color: #94A3B8 !important; margin: 0 0 22px; line-height: 1.5; }
-  .hr-divider { display: none; }
-  .hr-feature { display: flex; align-items: center; gap: 10px; font-size: 0.8em; color: #64748B !important; margin-bottom: 8px; }
-  .hr-feature-dot { width: 5px; height: 5px; border-radius: 50%; background: #028090; flex-shrink: 0; }
-  .q-card { background: white; border-radius: 16px; padding: 28px 32px 24px; margin-bottom: 18px; box-shadow: 0 2px 14px rgba(0,0,0,0.06); border-top: 3px solid #028090; }
-  .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-  .q-num-bubble { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #028090, #0369A1); color: white !important; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .q-category { background: #F0FDFA; color: #0F766E !important; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px; border: 1px solid #CCFBF1; }
-  .q-type-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-left: auto; }
-  .badge-mc  { background: #FFF7ED; color: #C2410C !important; border: 1px solid #FED7AA; }
-  .badge-sub { background: #F5F3FF; color: #6D28D9 !important; border: 1px solid #DDD6FE; }
-  .q-text { font-size: 1.08em; font-weight: 600; color: #0F172A !important; line-height: 1.65; }
-  div[role="radiogroup"] label, div[role="radiogroup"] label p, div[role="radiogroup"] label span,
-  div[data-baseweb="radio"] label, div[data-baseweb="radio"] label p, div[data-baseweb="radio"] label span,
-  .stRadio label, .stRadio label p, .stRadio span,
-  [data-testid="stMarkdownContainer"] p { color: #1E293B !important; }
-  .stRadio > div { gap: 8px; }
-  div[data-baseweb="radio"] { background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 11px; padding: 13px 17px; transition: all 0.15s; }
-  div[data-baseweb="radio"]:hover { border-color: #028090; background: #F0FDFA; }
-  div[data-baseweb="radio"][aria-checked="true"] { background: #E0F7FA !important; border-color: #028090 !important; }
-  div[data-baseweb="radio"][aria-checked="true"] label,
-  div[data-baseweb="radio"][aria-checked="true"] label p,
-  div[data-baseweb="radio"][aria-checked="true"] label span { color: #0C4A5A !important; }
-  .stTextArea textarea { border-radius: 11px; border: 1.5px solid #E2E8F0; font-size: 0.95em; color: #1E293B !important; background: #FAFAFA; padding: 12px 16px; transition: border-color 0.15s, box-shadow 0.15s; }
-  .stTextArea textarea:focus { border-color: #028090; box-shadow: 0 0 0 3px rgba(2,128,144,0.1); }
-  .stButton > button { border-radius: 9px; font-weight: 600; font-size: 0.9em; transition: all 0.15s; background: #334155 !important; color: white !important; border: 1px solid #475569 !important; }
-  .stButton > button p, .stButton > button span, .stButton > button div { color: white !important; }
-  .stButton > button:hover { background: #1E293B !important; border-color: #64748B !important; }
-  .stButton > button[kind="primary"] { background: linear-gradient(135deg, #028090, #0369A1) !important; border: none !important; color: white !important; box-shadow: 0 2px 8px rgba(2,128,144,0.25); }
-  .stButton > button[kind="primary"]:hover { background: linear-gradient(135deg, #026070, #025A8A) !important; box-shadow: 0 6px 18px rgba(2,128,144,0.35); transform: translateY(-1px); }
-  .score-hero { text-align: center; background: linear-gradient(150deg, #09162A 0%, #1B2A4A 100%); border-radius: 22px; padding: 44px 28px 36px; box-shadow: 0 16px 48px rgba(9,22,42,0.22); margin-bottom: 24px; position: relative; overflow: hidden; }
-  .score-hero::before { content: ''; position: absolute; top: -50px; right: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(2,128,144,0.2) 0%, transparent 65%); border-radius: 50%; }
-  .score-level-tag { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #4B6380 !important; margin-bottom: 12px; }
-  .score-num { font-size: 5.5em; font-weight: 900; background: linear-gradient(135deg, #FFFFFF, #94D5DB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; letter-spacing: -3px; }
-  .score-denom { font-size: 1.1em; color: #475569 !important; font-weight: 500; margin-top: 4px; }
-  .grade-pill { display: inline-block; padding: 8px 22px; border-radius: 99px; font-size: 0.88em; font-weight: 700; margin-top: 16px; }
-  .score-pct { font-size: 0.88em; color: #64748B !important; margin-top: 10px; }
-  .stat-row { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
-  .stat-chip { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 22px; text-align: center; min-width: 100px; }
-  .stat-val { font-size: 1.5em; font-weight: 900; display: block; }
-  .stat-lbl { font-size: 0.72em; color: #4B6380 !important; font-weight: 500; margin-top: 2px; }
-  .rd-wrap { background: white; border-radius: 14px; margin-bottom: 12px; overflow: hidden; border: 1px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-  .rd-header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; }
-  .rd-correct .rd-header { background: #F0FDF4; border-left: 4px solid #16A34A; }
-  .rd-wrong   .rd-header { background: #FFF7ED; border-left: 4px solid #EA580C; }
-  .rd-partial .rd-header { background: #FEFCE8; border-left: 4px solid #CA8A04; }
-  .rd-icon { font-size: 1.15em; flex-shrink: 0; }
-  .rd-title { font-size: 0.88em; font-weight: 600; color: #1E293B !important; flex: 1; }
-  .rd-score-tag { font-size: 0.78em; font-weight: 700; padding: 3px 10px; border-radius: 99px; flex-shrink: 0; }
+
+  /* ── 문제 카드 ── */
+  .q-card { background: white; border-radius: 10px; padding: 26px 30px 22px; margin-bottom: 16px; border: 1px solid #E2E8F0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border-left: 3px solid #028090; }
+  .q-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .q-num-bubble { width: 26px; height: 26px; border-radius: 50%; background: #0A1628; color: white !important; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .q-category { background: #F0F9FF; color: #0369A1 !important; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 4px; }
+  .q-type-badge { font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 4px; margin-left: auto; letter-spacing: 0.3px; }
+  .badge-mc  { background: #FFF7ED; color: #C2410C !important; }
+  .badge-sub { background: #F5F3FF; color: #6D28D9 !important; }
+  .q-text { font-size: 1.05em; font-weight: 600; color: #0F172A !important; line-height: 1.65; }
+
+  /* ── 결과 카드 ── */
+  .rd-wrap { background: white; border-radius: 10px; margin-bottom: 10px; overflow: hidden; border: 1px solid #E2E8F0; }
+  .rd-header { display: flex; align-items: center; gap: 12px; padding: 13px 18px; }
+  .rd-correct .rd-header { background: #F0FDF4; border-left: 3px solid #16A34A; }
+  .rd-wrong   .rd-header { background: #FFF7ED; border-left: 3px solid #EA580C; }
+  .rd-partial .rd-header { background: #FEFCE8; border-left: 3px solid #CA8A04; }
+  .rd-icon { font-size: 1em; flex-shrink: 0; }
+  .rd-title { font-size: 0.87em; font-weight: 600; color: #1E293B !important; flex: 1; }
+  .rd-score-tag { font-size: 0.75em; font-weight: 700; padding: 2px 9px; border-radius: 4px; flex-shrink: 0; }
   .rd-correct .rd-score-tag { background: #DCFCE7; color: #15803D !important; }
   .rd-wrong   .rd-score-tag { background: #FFEDD5; color: #C2410C !important; }
   .rd-partial .rd-score-tag { background: #FEF9C3; color: #A16207 !important; }
-  .rd-body { padding: 0 20px 18px 20px; }
-  .rd-section { margin-top: 14px; }
-  .rd-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #94A3B8 !important; margin-bottom: 6px; }
-  .rd-q-text { font-size: 0.9em; font-weight: 600; color: #1E293B !important; line-height: 1.55; }
-  .rd-my-ans { font-size: 0.87em; color: #475569 !important; line-height: 1.55; }
-  .fb-good { background: #F0FDF4; border-left: 3px solid #22C55E; border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px; font-size: 0.85em; color: #166534 !important; line-height: 1.6; }
-  .fb-warn { background: #FFFBEB; border-left: 3px solid #F59E0B; border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px; font-size: 0.85em; color: #92400E !important; line-height: 1.6; }
-  .fb-info { background: #EFF6FF; border-left: 3px solid #3B82F6; border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px; font-size: 0.85em; color: #1E40AF !important; line-height: 1.6; }
-  .fb-answer { background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 10px; padding: 12px 16px; margin-top: 10px; font-size: 0.83em; color: #475569 !important; line-height: 1.65; }
-  .fb-correct-ans { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 8px 14px; margin-top: 8px; font-size: 0.85em; color: #166534 !important; font-weight: 600; }
-  .fb-explan { background: #F8FAFC; border-left: 3px solid #94A3B8; border-radius: 0 10px 10px 0; padding: 10px 14px; margin-top: 10px; font-size: 0.85em; color: #475569 !important; line-height: 1.6; }
-  .streamlit-expanderHeader { font-size: 0.9em !important; color: #1E293B !important; }
-  .streamlit-expanderHeader p { color: #1E293B !important; }
+  .rd-body { padding: 0 18px 16px; }
+  .rd-section { margin-top: 12px; }
+  .rd-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #94A3B8 !important; margin-bottom: 5px; }
+  .rd-q-text { font-size: 0.88em; font-weight: 600; color: #1E293B !important; line-height: 1.55; }
+  .rd-my-ans { font-size: 0.85em; color: #475569 !important; line-height: 1.55; }
+  .fb-good { background: #F0FDF4; border-left: 3px solid #22C55E; border-radius: 0 8px 8px 0; padding: 10px 13px; margin-top: 8px; font-size: 0.84em; color: #166534 !important; line-height: 1.6; }
+  .fb-warn { background: #FFFBEB; border-left: 3px solid #F59E0B; border-radius: 0 8px 8px 0; padding: 10px 13px; margin-top: 8px; font-size: 0.84em; color: #92400E !important; line-height: 1.6; }
+  .fb-info { background: #EFF6FF; border-left: 3px solid #3B82F6; border-radius: 0 8px 8px 0; padding: 10px 13px; margin-top: 8px; font-size: 0.84em; color: #1E40AF !important; line-height: 1.6; }
+  .fb-answer { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 14px; margin-top: 8px; font-size: 0.83em; color: #475569 !important; line-height: 1.65; }
+  .fb-correct-ans { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 6px; padding: 7px 12px; margin-top: 7px; font-size: 0.84em; color: #166534 !important; font-weight: 600; }
+  .fb-explan { background: #F8FAFC; border-left: 3px solid #CBD5E1; border-radius: 0 8px 8px 0; padding: 10px 13px; margin-top: 8px; font-size: 0.84em; color: #475569 !important; line-height: 1.6; }
+
+  /* ── 메트릭 ── */
+  div[data-testid="stMetric"] { background: white; border-radius: 8px; padding: 18px 22px; border: 1px solid #E2E8F0; }
+  div[data-testid="stMetricLabel"], div[data-testid="stMetricLabel"] p,
+  div[data-testid="stMetricLabel"] span { color: #64748B !important; font-size: 0.75rem !important; font-weight: 600 !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; }
+  div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] div,
+  div[data-testid="stMetricValue"] span { color: #0F172A !important; font-weight: 800 !important; }
+
+  /* ── 탭 ── */
+  .stTabs [data-baseweb="tab-list"] { background: transparent; border-bottom: 1px solid #E2E8F0; gap: 0; }
+  .stTabs [data-baseweb="tab"] { border-radius: 0; padding: 10px 20px; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .stTabs [data-baseweb="tab"] p, .stTabs [data-baseweb="tab"] span { color: #64748B !important; font-weight: 500 !important; font-size: 0.88rem !important; }
+  .stTabs [aria-selected="true"] { border-bottom: 2px solid #028090 !important; }
+  .stTabs [aria-selected="true"] p, .stTabs [aria-selected="true"] span { color: #028090 !important; font-weight: 700 !important; }
+
+  /* ── 기타 ── */
+  .streamlit-expanderHeader { font-size: 0.88em !important; color: #1E293B !important; }
   .streamlit-expanderContent { background: white !important; }
-  .streamlit-expanderContent p, .streamlit-expanderContent span, .streamlit-expanderContent li { color: #334155 !important; }
-  div[data-testid="stAlert"] { border-radius: 10px; }
+  .streamlit-expanderContent p, .streamlit-expanderContent span { color: #334155 !important; }
+  div[data-testid="stAlert"] { border-radius: 8px; }
   div[data-testid="stAlert"] p, div[data-testid="stAlert"] span { color: #1E293B !important; }
-  .nav-hint { font-size: 12px; color: #94A3B8; text-align: center; }
-  .section-divider { border: none; border-top: 1px solid #E2E8F0; margin: 24px 0; }
-  .quiz-topbar { background: white; border-radius: 14px; padding: 14px 22px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #E8ECF0; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .stDataFrame, .stDataFrame th, .stDataFrame td { color: #1E293B !important; }
+  .section-divider { border: none; border-top: 1px solid #E2E8F0; margin: 20px 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -1046,7 +1068,9 @@ def evaluate_subjective_answer(question: str, user_answer: str,
 # ─────────────────────────────────────────────
 def init_session():
     defaults = {
-        "page": "home",
+        "page": "login",
+        "user_name": "",
+        "is_admin": False,
         "level": None,
         "sub_test": None,
         "questions": [],
@@ -1054,6 +1078,8 @@ def init_session():
         "answers": {},
         "results": [],
         "api_key": "",
+        "result_saved": False,
+        "prev_page": "home",
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -1065,16 +1091,47 @@ init_session()
 # 사이드바
 # ─────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🧠 AgentOS 퀴즈")
+    st.markdown("""
+<div style="padding: 4px 0 16px;">
+  <div style="font-size: 0.65rem; font-weight: 700; letter-spacing: 2.5px; color: #028090; text-transform: uppercase; margin-bottom: 4px;">ENHANS</div>
+  <div style="font-size: 1rem; font-weight: 700; color: #E2E8F0; letter-spacing: -0.3px;">AgentOS Learning</div>
+</div>
+""", unsafe_allow_html=True)
     st.markdown("---")
 
-    if st.session_state.page == "home":
+    if st.session_state.page == "login":
+        st.markdown("**로그인 후 퀴즈를 시작하세요.**")
+    elif st.session_state.page == "change_pw":
+        if st.session_state.user_name:
+            st.markdown(f"**👤 {st.session_state.user_name}**")
+            st.markdown("---")
+        st.markdown("**비밀번호 변경**")
+        st.markdown("---")
+        if st.button("← 뒤로", use_container_width=True, key="sidebar_back_changepw"):
+            st.session_state.page = st.session_state.get("prev_page", "home")
+            st.rerun()
+    elif st.session_state.page == "home":
+        if st.session_state.user_name:
+            st.markdown(f"**👤 {st.session_state.user_name}**")
+            if st.button("🔑 비밀번호 변경", use_container_width=True, key="sidebar_changepw_btn"):
+                st.session_state.prev_page = "home"
+                st.session_state.page = "change_pw"
+                st.rerun()
+            st.markdown("---")
         st.markdown("**레벨을 선택하고 시작하세요.**")
         st.markdown("""
 - **기본**: 회사/제품 개요, 온톨로지 기초, 데이터 연결 & 인프라, AgentOS vs 기존 기술, 고객 소통 & 영업 기초
 - **심화**: 데이터 아키텍처 심화, 멀티 Agent & 워크플로우, 거버넌스 & Observability, 아키텍처 기반 고객 설득
 """)
+        if st.session_state.is_admin:
+            st.markdown("---")
+            if st.button("📊 대시보드", use_container_width=True, key="sidebar_dashboard_btn"):
+                st.session_state.page = "dashboard"
+                st.rerun()
     elif st.session_state.page == "quiz":
+        if st.session_state.user_name:
+            st.markdown(f"**👤 {st.session_state.user_name}**")
+            st.markdown("---")
         level = st.session_state.level or ""
         sub_test = st.session_state.sub_test or ""
         total = len(st.session_state.questions)
@@ -1085,9 +1142,30 @@ with st.sidebar:
         progress = (st.session_state.current_q) / total if total > 0 else 0
         st.progress(progress)
     elif st.session_state.page == "results":
+        if st.session_state.user_name:
+            st.markdown(f"**👤 {st.session_state.user_name}**")
+            if st.button("🔑 비밀번호 변경", use_container_width=True, key="sidebar_changepw_results_btn"):
+                st.session_state.prev_page = "results"
+                st.session_state.page = "change_pw"
+                st.rerun()
+            st.markdown("---")
         st.markdown(f"**레벨:** {st.session_state.level or ''}")
         st.markdown(f"**파트:** {st.session_state.sub_test or ''}")
         st.markdown("**결과를 확인하세요.**")
+        if st.session_state.is_admin:
+            st.markdown("---")
+            if st.button("📊 대시보드", use_container_width=True, key="sidebar_dashboard_results_btn"):
+                st.session_state.page = "dashboard"
+                st.rerun()
+    elif st.session_state.page == "dashboard":
+        if st.session_state.user_name:
+            st.markdown(f"**👤 {st.session_state.user_name}** (관리자)")
+            st.markdown("---")
+        st.markdown("**팀 학습 현황 대시보드**")
+        st.markdown("---")
+        if st.button("🏠 홈으로", use_container_width=True, key="sidebar_home_from_dash"):
+            st.session_state.page = "home"
+            st.rerun()
 
     st.markdown("---")
     st.markdown("<small>Enhans AgentOS Quiz v2.0</small>", unsafe_allow_html=True)
@@ -1193,11 +1271,12 @@ def show_home():
             key="home_sub_test_widget",
         )
 
+        default_api_key = st.session_state.api_key or st.secrets.get("anthropic_api_key", "")
         api_key = st.text_input(
             "**Anthropic API Key**",
             type="password",
             placeholder="sk-ant-...",
-            value=st.session_state.api_key,
+            value=default_api_key,
             key="home_api_key_widget",
         )
 
@@ -1215,6 +1294,7 @@ def show_home():
                 st.session_state.current_q = 0
                 st.session_state.answers = {}
                 st.session_state.results = []
+                st.session_state.result_saved = False
                 st.session_state.page = "quiz"
                 st.rerun()
 
@@ -1393,6 +1473,13 @@ def show_results():
     level = st.session_state.level
     sub_test = st.session_state.sub_test
 
+    # 결과 최초 1회 저장
+    if results and not st.session_state.get("result_saved", False):
+        user_name = st.session_state.get("user_name") or "익명"
+        if save_quiz_result(user_name, level, sub_test, results):
+            st.toast("✅ 결과가 저장되었습니다.")
+        st.session_state.result_saved = True
+
     total_score = sum(r["score"] for r in results)
     total_max = sum(r["max_score"] for r in results)
     mc_results = [r for r in results if r["type"] == "mc"]
@@ -1452,6 +1539,7 @@ def show_results():
             st.session_state.current_q = 0
             st.session_state.answers = {}
             st.session_state.results = []
+            st.session_state.result_saved = False
             st.session_state.page = "quiz"
             st.rerun()
     with col2:
@@ -1550,11 +1638,317 @@ def show_results():
 
 
 # ─────────────────────────────────────────────
+# 로그인 페이지
+# ─────────────────────────────────────────────
+def show_login():
+    st.markdown("""
+<div style="max-width:400px; margin:60px auto 0; text-align:center;">
+  <div style="font-size:0.65rem; font-weight:700; letter-spacing:3px; color:#028090; text-transform:uppercase; margin-bottom:10px;">ENHANS</div>
+  <div style="font-size:1.75rem; font-weight:800; color:#0F172A; letter-spacing:-0.5px; margin-bottom:6px;">AgentOS Learning</div>
+  <div style="font-size:0.88rem; color:#94A3B8; margin-bottom:36px; font-weight:400;">팀 기술 역량 학습 플랫폼</div>
+</div>
+""", unsafe_allow_html=True)
+
+    _, center, _ = st.columns([1, 2, 1])
+    with center:
+        is_admin_mode = st.checkbox("관리자 모드", key="login_admin_checkbox")
+
+        if is_admin_mode:
+            name = st.text_input("이름", placeholder="예: 홍길동", key="login_name_input")
+            password = st.text_input("관리자 비밀번호", type="password", key="login_admin_pw_input")
+        else:
+            name = st.selectbox("이름 선택", [""] + USERS, key="login_name_select")
+            password = st.text_input("비밀번호", type="password", placeholder="비밀번호 입력", key="login_pw_input")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("로그인", use_container_width=True, key="login_submit_btn", type="primary"):
+            name = name.strip() if isinstance(name, str) else name
+            if not name:
+                st.error("이름을 선택해주세요.")
+            elif not password:
+                st.error("비밀번호를 입력해주세요.")
+            elif is_admin_mode:
+                if name != ADMIN_NAME:
+                    st.error("관리자 권한이 없습니다.")
+                else:
+                    try:
+                        correct_pw = st.secrets["admin"]["password"]
+                    except Exception:
+                        correct_pw = "dlsgostm0711"
+                    if password == correct_pw:
+                        st.session_state.user_name = name
+                        st.session_state.is_admin = True
+                        st.session_state.page = "home"
+                        st.rerun()
+                    else:
+                        st.error("관리자 비밀번호가 올바르지 않습니다.")
+            else:
+                with st.spinner("확인 중..."):
+                    ok = verify_user(name, password)
+                if ok:
+                    st.session_state.user_name = name
+                    st.session_state.is_admin = False
+                    st.session_state.page = "home"
+                    st.rerun()
+                else:
+                    st.error("이름 또는 비밀번호가 올바르지 않습니다.")
+
+
+# ─────────────────────────────────────────────
+# 비밀번호 변경 페이지
+# ─────────────────────────────────────────────
+def show_change_password():
+    user_name = st.session_state.get("user_name", "")
+
+    st.markdown("""
+<div style="background:linear-gradient(135deg,#1E293B 0%,#334155 100%);
+            border-radius:16px; padding:28px 32px; margin-bottom:28px;">
+  <div style="color:#028090; font-size:0.65rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;">SETTINGS</div>
+  <div style="color:#fff; font-size:1.4rem; font-weight:800; letter-spacing:-0.3px;">비밀번호 변경</div>
+</div>
+""", unsafe_allow_html=True)
+
+    _, center, _ = st.columns([1, 2, 1])
+    with center:
+        st.markdown(f"**{user_name}**님의 비밀번호를 변경합니다.")
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        current_pw = st.text_input("현재 비밀번호", type="password", key="cpw_current")
+        new_pw = st.text_input("새 비밀번호", type="password", key="cpw_new")
+        new_pw2 = st.text_input("새 비밀번호 확인", type="password", key="cpw_new2")
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("변경하기", use_container_width=True, type="primary", key="cpw_submit"):
+            if not current_pw or not new_pw or not new_pw2:
+                st.error("모든 항목을 입력해주세요.")
+            elif new_pw != new_pw2:
+                st.error("새 비밀번호가 일치하지 않습니다.")
+            elif len(new_pw) < 4:
+                st.error("비밀번호는 4자리 이상이어야 합니다.")
+            else:
+                with st.spinner("확인 중..."):
+                    verified = verify_user(user_name, current_pw)
+                if not verified:
+                    st.error("현재 비밀번호가 올바르지 않습니다.")
+                else:
+                    with st.spinner("변경 중..."):
+                        ok = update_password(user_name, new_pw)
+                    if ok:
+                        st.success("비밀번호가 변경되었습니다.")
+                        st.balloons()
+                    else:
+                        st.error("변경 중 오류가 발생했습니다.")
+
+
+# ─────────────────────────────────────────────
+# 대시보드 페이지 (관리자 전용)
+# ─────────────────────────────────────────────
+def show_dashboard():
+    if not st.session_state.get("is_admin", False):
+        st.error("관리자만 접근할 수 있습니다.")
+        if st.button("← 홈으로"):
+            st.session_state.page = "home"
+            st.rerun()
+        return
+
+    st.markdown("""
+<div style="background:linear-gradient(135deg,#1E293B 0%,#334155 100%);
+            border-radius:16px; padding:28px 32px; margin-bottom:28px;">
+  <div style="color:#028090; font-size:0.65rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px;">ADMIN · ENHANS</div>
+  <div style="color:#fff; font-size:1.5rem; font-weight:800; letter-spacing:-0.3px;">학습 대시보드</div>
+  <div style="color:rgba(255,255,255,0.5); font-size:0.83rem; margin-top:4px; font-weight:400;">팀 전체 학습 현황 및 문제별 분석</div>
+</div>
+""", unsafe_allow_html=True)
+
+    if not sheets_configured():
+        st.warning("⚠️ Google Sheets가 연결되지 않았습니다. `.streamlit/secrets.toml`을 설정해주세요.")
+        st.info("설정 전까지 대시보드를 사용할 수 없습니다. `secrets.toml.example` 파일을 참고하세요.")
+        return
+
+    with st.spinner("데이터 불러오는 중..."):
+        results_data, details_data = get_all_results()
+
+    if results_data is None:
+        st.error("Google Sheets 연결에 실패했습니다. 인증 정보를 확인해주세요.")
+        return
+
+    if not results_data:
+        st.info("아직 저장된 시험 결과가 없습니다. 팀원들이 퀴즈를 완료하면 여기에 표시됩니다.")
+        return
+
+    df = pd.DataFrame(results_data)
+    df["백분율"] = pd.to_numeric(df["백분율"], errors="coerce")
+    df["총점"] = pd.to_numeric(df["총점"], errors="coerce")
+    df["최대점수"] = pd.to_numeric(df["최대점수"], errors="coerce")
+
+    # 상단 요약 지표
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("총 응시 횟수", len(df))
+    col2.metric("참여 인원", df["이름"].nunique())
+    col3.metric("팀 평균 점수", f"{df['백분율'].mean():.1f}%")
+    col4.metric("최고 점수", f"{df['백분율'].max():.1f}%")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    tab1, tab2, tab3 = st.tabs(["👥 팀 현황", "❓ 문제 분석", "👤 개인 히스토리"])
+
+    # ── 탭 1: 팀 현황 ──────────────────────────────
+    with tab1:
+        st.markdown("#### 팀원별 성적 요약")
+        team_stats = (
+            df.groupby("이름")
+            .agg(응시횟수=("백분율", "count"), 평균=("백분율", "mean"), 최고=("백분율", "max"))
+            .reset_index()
+        )
+        team_stats["평균"] = team_stats["평균"].round(1).astype(str) + "%"
+        team_stats["최고"] = team_stats["최고"].round(1).astype(str) + "%"
+        team_stats.columns = ["이름", "응시 횟수", "평균 점수", "최고 점수"]
+        st.dataframe(team_stats, use_container_width=True, hide_index=True)
+
+        st.markdown("#### 레벨 · 파트별 팀 평균")
+        part_stats = (
+            df.groupby(["레벨", "파트"])["백분율"]
+            .mean()
+            .reset_index()
+        )
+        part_stats["백분율"] = part_stats["백분율"].round(1)
+        part_stats.columns = ["레벨", "파트", "평균 점수 (%)"]
+        st.dataframe(part_stats, use_container_width=True, hide_index=True)
+
+        st.markdown("#### 최근 응시 기록")
+        recent = df.sort_values("날짜", ascending=False).head(20)
+        display_cols = ["이름", "날짜", "레벨", "파트", "총점", "최대점수", "백분율"]
+        st.dataframe(recent[display_cols], use_container_width=True, hide_index=True)
+
+    # ── 탭 2: 문제 분석 ───────────────────────────
+    with tab2:
+        if not details_data:
+            st.info("상세 문제 데이터가 없습니다.")
+        else:
+            df_det = pd.DataFrame(details_data)
+            df_det["획득점수"] = pd.to_numeric(df_det["획득점수"], errors="coerce")
+            df_det["최대점수"] = pd.to_numeric(df_det["최대점수"], errors="coerce")
+
+            mc = df_det[df_det["유형"] == "객관식"].copy()
+            if not mc.empty:
+                st.markdown("#### ❌ 오답률 높은 문제 TOP 10 (객관식)")
+                wrong_cnt = mc[mc["정답여부"] == "X"].groupby("문제ID").size()
+                total_cnt = mc.groupby("문제ID").size()
+                err_rate = (wrong_cnt / total_cnt * 100).dropna().sort_values(ascending=False).head(10)
+                err_df = err_rate.reset_index()
+                err_df.columns = ["문제ID", "오답률(%)"]
+                err_df["오답률(%)"] = err_df["오답률(%)"].round(1)
+                st.bar_chart(err_df.set_index("문제ID"))
+                st.dataframe(err_df, use_container_width=True, hide_index=True)
+
+            subj = df_det[df_det["유형"] == "주관식"].copy()
+            if not subj.empty:
+                st.markdown("#### 📝 주관식 문제별 평균 점수 (낮을수록 어려운 문제)")
+                subj_avg = subj.groupby("문제ID")["획득점수"].mean().sort_values()
+                subj_df = subj_avg.reset_index()
+                subj_df.columns = ["문제ID", "평균 점수"]
+                subj_df["평균 점수"] = subj_df["평균 점수"].round(2)
+                st.bar_chart(subj_df.set_index("문제ID"))
+
+            st.markdown("#### 카테고리별 정답률")
+            cat_stats = df_det[df_det["유형"] == "객관식"].copy()
+            if not cat_stats.empty:
+                cat_stats["정답"] = (cat_stats["정답여부"] == "O").astype(int)
+                cat_rate = cat_stats.groupby("카테고리")["정답"].mean().sort_values() * 100
+                cat_df = cat_rate.reset_index()
+                cat_df.columns = ["카테고리", "정답률(%)"]
+                cat_df["정답률(%)"] = cat_df["정답률(%)"].round(1)
+                st.dataframe(cat_df, use_container_width=True, hide_index=True)
+
+    # ── 탭 3: 개인 히스토리 ───────────────────────
+    with tab3:
+        names = sorted(df["이름"].unique())
+        selected = st.selectbox("팀원 선택", names, key="dash_name_select")
+        if selected:
+            user_df = df[df["이름"] == selected].copy()
+            user_df = user_df.sort_values("날짜", ascending=False)
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("응시 횟수", len(user_df))
+            c2.metric("평균 점수", f"{user_df['백분율'].mean():.1f}%")
+            c3.metric("최고 점수", f"{user_df['백분율'].max():.1f}%")
+
+            if len(user_df) > 1:
+                st.markdown("<br>", unsafe_allow_html=True)
+                trend = user_df.sort_values("날짜")[["날짜", "백분율"]].set_index("날짜")
+                st.line_chart(trend, height=200)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown(f"#### 응시 내역")
+
+            df_det_user = df_det[df_det["이름"] == selected].copy() if not df_det.empty else pd.DataFrame()
+
+            for _, row in user_df.iterrows():
+                date = row["날짜"]
+                level = row["레벨"]
+                part = row["파트"]
+                total_s = int(row["총점"])
+                total_m = int(row["최대점수"])
+                pct = row["백분율"]
+
+                pct_color = "#16A34A" if pct >= 80 else ("#3B82F6" if pct >= 60 else ("#F59E0B" if pct >= 40 else "#EF4444"))
+                label = f"{date}　·　{level} / {part}　·　{total_s}/{total_m}점 ({pct}%)"
+
+                with st.expander(label):
+                    attempt_det = df_det_user[df_det_user["날짜"] == date] if not df_det_user.empty else pd.DataFrame()
+
+                    if attempt_det.empty:
+                        st.caption("상세 데이터가 없습니다. (이 기록은 업데이트 이전에 저장된 데이터입니다)")
+                    else:
+                        for q_idx, det in attempt_det.reset_index(drop=True).iterrows():
+                            correct = str(det.get("정답여부", ""))
+                            score_q = det.get("획득점수", 0)
+                            max_q = det.get("최대점수", 10)
+                            q_type = det.get("유형", "")
+                            category = det.get("카테고리", "")
+                            q_text = str(det.get("문제내용", "")).strip()
+                            user_ans = str(det.get("내답변", "")).strip()
+
+                            if correct == "O":
+                                border_color, bg_color, badge_bg, badge_color, badge_text = "#16A34A", "#F8FFF9", "#DCFCE7", "#15803D", "정답"
+                            elif correct == "△":
+                                border_color, bg_color, badge_bg, badge_color, badge_text = "#CA8A04", "#FEFFF4", "#FEF9C3", "#A16207", "부분"
+                            else:
+                                border_color, bg_color, badge_bg, badge_color, badge_text = "#EA580C", "#FFFBF8", "#FFEDD5", "#C2410C", "오답"
+
+                            q_text_html = f'<div style="font-size:0.9rem; font-weight:600; color:#0F172A; line-height:1.6; margin-bottom:8px;">{q_text}</div>' if q_text else ""
+                            ans_html = f'<div style="font-size:0.84rem; color:#475569; line-height:1.55;"><span style="font-weight:600; color:#64748B;">내 답변</span>&nbsp;&nbsp;{user_ans}</div>' if user_ans else ""
+
+                            st.markdown(f"""
+<div style="background:{bg_color}; border:1px solid {border_color}22; border-left:3px solid {border_color};
+            border-radius:0 8px 8px 0; padding:14px 18px; margin-bottom:8px;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:{'8px' if q_text or user_ans else '0'};">
+    <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
+      <span style="font-size:0.72rem; font-weight:700; color:#94A3B8; flex-shrink:0;">Q{q_idx+1}</span>
+      <span style="font-size:0.75rem; color:#64748B; background:#F1F5F9; padding:2px 8px; border-radius:4px; flex-shrink:0;">{category}</span>
+      <span style="font-size:0.72rem; color:#94A3B8; flex-shrink:0;">{q_type}</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px; flex-shrink:0; margin-left:12px;">
+      <span style="font-size:0.75rem; font-weight:700; background:{badge_bg}; color:{badge_color}; padding:2px 9px; border-radius:4px;">{badge_text}</span>
+      <span style="font-size:0.82rem; font-weight:800; color:{border_color};">{score_q}/{max_q}</span>
+    </div>
+  </div>
+  {q_text_html}{ans_html}
+</div>
+""", unsafe_allow_html=True)
+
+
+# ─────────────────────────────────────────────
 # 라우터
 # ─────────────────────────────────────────────
-if st.session_state.page == "home":
+if st.session_state.page == "login":
+    show_login()
+elif st.session_state.page == "home":
     show_home()
 elif st.session_state.page == "quiz":
     show_quiz()
 elif st.session_state.page == "results":
     show_results()
+elif st.session_state.page == "change_pw":
+    show_change_password()
+elif st.session_state.page == "dashboard":
+    show_dashboard()
