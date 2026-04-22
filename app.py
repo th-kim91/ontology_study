@@ -3,9 +3,11 @@ import anthropic
 import json
 import time
 import pandas as pd
+SHEETS_IMPORT_ERROR = None
 try:
     from sheets_db import save_quiz_result, get_all_results, sheets_configured, verify_user, update_password
-except ImportError:
+except Exception as _e:
+    SHEETS_IMPORT_ERROR = str(_e)
     def save_quiz_result(*a, **kw): return False
     def get_all_results(): return None, None
     def sheets_configured(): return False
@@ -1760,9 +1762,12 @@ def show_dashboard():
 </div>
 """, unsafe_allow_html=True)
 
+    if SHEETS_IMPORT_ERROR:
+        st.error(f"❌ sheets_db 임포트 오류: {SHEETS_IMPORT_ERROR}")
+        return
+
     if not sheets_configured():
         st.warning("⚠️ Google Sheets 연결 실패")
-        # 어느 부분이 없는지 진단
         has_gcp = "gcp_service_account" in st.secrets
         has_sheets = "sheets" in st.secrets
         st.code(f"gcp_service_account 섹션: {'✅ 있음' if has_gcp else '❌ 없음'}\nsheets 섹션: {'✅ 있음' if has_sheets else '❌ 없음'}", language=None)
