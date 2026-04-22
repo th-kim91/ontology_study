@@ -1761,8 +1761,11 @@ def show_dashboard():
 """, unsafe_allow_html=True)
 
     if not sheets_configured():
-        st.warning("⚠️ Google Sheets가 연결되지 않았습니다. `.streamlit/secrets.toml`을 설정해주세요.")
-        st.info("설정 전까지 대시보드를 사용할 수 없습니다. `secrets.toml.example` 파일을 참고하세요.")
+        st.warning("⚠️ Google Sheets 연결 실패")
+        # 어느 부분이 없는지 진단
+        has_gcp = "gcp_service_account" in st.secrets
+        has_sheets = "sheets" in st.secrets
+        st.code(f"gcp_service_account 섹션: {'✅ 있음' if has_gcp else '❌ 없음'}\nsheets 섹션: {'✅ 있음' if has_sheets else '❌ 없음'}", language=None)
         return
 
     with st.spinner("데이터 불러오는 중..."):
