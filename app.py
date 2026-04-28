@@ -14,7 +14,7 @@ except Exception as _e:
     def verify_user(*a, **kw): return False
     def update_password(*a, **kw): return False
 
-USERS = ["정석연","장혁진","이재림","주경호","김종휘","정호찬","변영건","최재은","이현주","안현진","정윤상","김도균","김태훈","서은경"]
+USERS = ["정석연","장혁진","이재림","주경호","김종휘","정호찬","변영건","최재은","이현주","안현진","정윤상","김도균","김태훈","서은경", "TEST"]
 ADMIN_NAME = "김태훈"
 
 st.set_page_config(
