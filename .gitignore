@@ -1,0 +1,12 @@
+# 인증 정보 - 절대 커밋하지 말 것
+.streamlit/secrets.toml
+*.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# OS
+.DS_Store
